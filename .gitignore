@@ -1,0 +1,27 @@
+# Dokumen internal — tidak disertakan ke repositori publik
+PRD — Website Konfigurator Furniture 3D Custom.md
+
+# Sistem operasi
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Log dan file sementara
+*.log
+*.tmp
+.cache/
+tmp/
+
+# Dependency (jika nanti ditambahkan)
+node_modules/
+
+# Environment dan konfigurasi lokal
+.env
+.env.*
+!.env.example

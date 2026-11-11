@@ -1,0 +1,3408 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ruang Kayu — Konfigurator Furniture 3D</title>
+<meta name="description" content="Konfigurator 3D furniture custom Ruang Kayu. Atur ukuran, material, dan komponen, lalu minta penawaran langsung dari halaman ini.">
+<meta name="theme-color" content="#f3eee4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ab7643'/%3E%3Ctext x='32' y='42' font-family='Georgia' font-size='24' fill='%23fdf7ec' text-anchor='middle'%3ERK%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Ruang Kayu — konfigurator prototype
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --cream:#f3eee4;
+  --cream-deep:#e9e1d2;
+  --paper:#fbf8f1;
+  --paper-2:#f6f1e7;
+  --ink:#211f1b;
+  --ink-soft:#3a3730;
+  --muted:#756f63;
+  --line:#ded5c5;
+  --line-strong:#c9bfad;
+  --wood:#ab7643;
+  --wood-deep:#875a30;
+  --sage:#69755f;
+  --danger:#a04b2e;
+  --white:#ffffff;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow-soft:0 18px 50px rgba(52,42,28,.14);
+  --font-display:"Fraunces",Georgia,"Times New Roman",serif;
+  --font-ui:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.2,.7,.25,1);
+}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font-ui);
+  color:var(--ink);
+  background:var(--cream);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+a{color:inherit}
+img{max-width:100%}
+:focus-visible{outline:2px solid var(--wood);outline-offset:2px}
+::selection{background:rgba(171,118,67,.25)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+.app{height:100dvh;display:flex;flex-direction:column}
+
+/* ---------- top bar ---------- */
+.topbar{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:20px;
+  padding:12px 22px;
+  background:var(--paper);
+  border-bottom:1px solid var(--line);
+  position:relative;
+  z-index:40;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-mark{
+  width:42px;height:42px;border-radius:12px;flex-shrink:0;
+  background:linear-gradient(145deg,#c4935d,#8a5c31);
+  color:#fdf7ec;display:grid;place-items:center;
+  font-family:var(--font-display);font-size:15px;letter-spacing:.02em;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.28),0 4px 10px rgba(90,60,30,.18);
+}
+.brand-text{min-width:0}
+.brand-text strong{
+  display:block;font-family:var(--font-display);font-weight:600;
+  font-size:18px;letter-spacing:.01em;line-height:1.1;white-space:nowrap;
+}
+.brand-text span{
+  display:block;font-size:9.5px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--muted);margin-top:3px;white-space:nowrap;
+}
+.models{
+  display:flex;justify-self:center;gap:5px;padding:5px;
+  background:var(--cream);border:1px solid var(--line);border-radius:999px;
+}
+.model-tab{
+  border:0;background:transparent;border-radius:999px;padding:7px 15px;
+  display:flex;flex-direction:column;align-items:center;line-height:1.1;
+  transition:background .2s var(--ease),color .2s var(--ease),box-shadow .2s var(--ease);
+  color:var(--muted);white-space:nowrap;
+}
+.model-tab b{font-size:12.5px;font-weight:600;color:var(--ink-soft);transition:color .2s}
+.model-tab small{
+  font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;margin-top:2px;
+  color:var(--muted);transition:color .2s;
+}
+.model-tab:hover{background:rgba(255,255,255,.65)}
+.model-tab.is-active{background:var(--ink);box-shadow:0 6px 16px rgba(33,31,27,.2)}
+.model-tab.is-active b{color:var(--cream)}
+.model-tab.is-active small{color:#c7b9a3}
+.top-actions{display:flex;gap:3px;align-items:center}
+.icon-btn{
+  width:40px;height:40px;border:1px solid transparent;background:transparent;
+  border-radius:11px;display:grid;place-items:center;color:var(--ink-soft);
+  transition:background .16s,border-color .16s,color .16s;
+}
+.icon-btn:hover{background:var(--paper-2);border-color:var(--line);color:var(--ink)}
+.icon-btn:disabled{opacity:.3;cursor:not-allowed}
+.icon-btn svg{width:17px;height:17px}
+
+/* ---------- studio layout ---------- */
+.studio{
+  flex:1;min-height:0;position:relative;
+  display:grid;grid-template-columns:minmax(0,1fr) clamp(372px,31vw,442px);
+}
+.viewport{
+  position:relative;min-width:0;overflow:hidden;isolation:isolate;
+  background:
+    radial-gradient(120% 90% at 50% 0%,#f8f4ec 0%,#efe8db 52%,#e6ddcd 100%);
+}
+.canvas-host{position:absolute;inset:0}
+.canvas-host canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+.canvas-host canvas:active{cursor:grabbing}
+.label-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+
+.vp-top{
+  position:absolute;top:16px;left:16px;right:16px;z-index:3;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  pointer-events:none;
+}
+.vp-badge{
+  pointer-events:auto;display:inline-flex;align-items:center;gap:8px;
+  padding:8px 12px;border-radius:999px;
+  background:rgba(251,248,241,.8);border:1px solid rgba(201,191,173,.75);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+}
+.vp-badge i{width:6px;height:6px;border-radius:50%;background:var(--sage);flex-shrink:0}
+.vp-tools{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;pointer-events:auto}
+.vp-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  height:38px;padding:0 14px;border-radius:999px;
+  border:1px solid rgba(201,191,173,.8);background:rgba(251,248,241,.84);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  font-size:11.5px;font-weight:600;color:var(--ink-soft);
+  transition:background .16s,border-color .16s,color .16s;
+}
+.vp-btn:hover{border-color:var(--wood);color:var(--wood-deep)}
+.vp-btn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+.vp-btn[hidden]{display:none}
+.vp-btn svg{width:14px;height:14px;flex-shrink:0}
+
+.vp-selection{
+  position:absolute;left:16px;bottom:16px;z-index:3;max-width:min(380px,calc(100% - 32px));
+  display:none;align-items:center;gap:10px;
+  padding:9px 13px;border-radius:11px;
+  background:rgba(33,31,27,.9);color:var(--cream);
+  font-size:11.5px;backdrop-filter:blur(8px);
+  box-shadow:0 10px 26px rgba(30,25,18,.22);
+}
+.vp-selection.is-on{display:flex;animation:rise .22s var(--ease)}
+.vp-selection b{font-weight:600}
+.vp-selection span{color:#c8bcaa}
+.vp-selection button{
+  border:0;background:transparent;color:#c8bcaa;font-size:15px;line-height:1;
+  padding:2px 2px 3px;border-radius:4px;
+}
+.vp-selection button:hover{color:var(--cream)}
+.vp-hint{
+  position:absolute;right:18px;bottom:16px;z-index:2;
+  font-size:10.5px;color:var(--muted);letter-spacing:.02em;
+  display:flex;align-items:center;gap:6px;
+}
+.vp-hint::before{content:"";width:14px;height:14px;border-radius:50%;border:1px solid var(--line-strong)}
+
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* measurement labels */
+.measure-label{
+  padding:3px 7px;border-radius:5px;
+  background:rgba(251,248,241,.92);border:1px solid var(--line-strong);
+  color:var(--ink-soft);font-family:var(--font-ui);font-size:10.5px;font-weight:600;
+  letter-spacing:.01em;white-space:nowrap;
+  box-shadow:0 3px 9px rgba(50,40,25,.08);
+  pointer-events:none;transform:translate(-50%,-50%);
+}
+
+/* loader */
+.loader{
+  position:absolute;inset:0;z-index:8;display:grid;place-items:center;
+  background:var(--cream);transition:opacity .36s var(--ease),visibility .36s;
+}
+.viewport.is-ready .loader{opacity:0;visibility:hidden;pointer-events:none}
+.loader-card{display:flex;flex-direction:column;align-items:center;gap:14px}
+.loader-mark{
+  width:48px;height:48px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#c4935d,#8a5c31);color:#fdf7ec;
+  font-family:var(--font-display);font-size:16px;
+  animation:breathe 2.2s ease-in-out infinite;
+}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.loader-card p{margin:0;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.loader-bar{width:170px;height:2px;border-radius:2px;background:var(--line);overflow:hidden}
+.loader-bar span{display:block;width:42%;height:100%;background:var(--wood);animation:loadSlide 1.15s var(--ease) infinite}
+@keyframes loadSlide{0%{transform:translateX(-110%)}100%{transform:translateX(340%)}}
+
+/* webgl fallback */
+.webgl-fallback{
+  position:absolute;inset:0;z-index:6;display:none;place-items:center;padding:24px;
+  background:radial-gradient(120% 90% at 50% 0%,#f8f4ec,#e6ddcd);
+}
+.viewport.no-webgl .webgl-fallback{display:grid}
+.viewport.no-webgl .vp-tools,.viewport.no-webgl .vp-hint{display:none}
+.fallback-card{
+  max-width:380px;text-align:center;background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--radius);padding:26px;box-shadow:var(--shadow-soft);
+}
+.fallback-card strong{font-family:var(--font-display);font-size:20px;display:block;margin-bottom:8px}
+.fallback-card p{margin:0 0 16px;color:var(--muted);font-size:12.5px;line-height:1.6}
+
+/* ---------- panel ---------- */
+.panel{
+  position:relative;z-index:10;min-height:0;display:flex;flex-direction:column;
+  background:var(--paper);border-left:1px solid var(--line);
+  box-shadow:-16px 0 40px rgba(60,48,30,.05);
+}
+.sheet-handle{display:none}
+.panel-scroll{
+  flex:1;overflow-y:auto;overscroll-behavior:contain;
+  padding:22px 22px 6px;scrollbar-gutter:stable;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;
+}
+.panel-scroll::-webkit-scrollbar{width:9px}
+.panel-scroll::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:99px;border:2px solid var(--paper)}
+
+.product-head .tier{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+  color:var(--wood-deep);background:rgba(171,118,67,.11);
+  border:1px solid rgba(171,118,67,.22);border-radius:999px;padding:4px 9px;
+}
+.product-head h1{
+  font-family:var(--font-display);font-weight:500;font-size:27px;
+  letter-spacing:-.012em;line-height:1.08;margin:9px 0 7px;
+}
+.product-head p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.55}
+.product-head .head-meta{
+  margin-top:11px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;
+}
+.head-rule{height:1px;background:var(--line);margin:16px 0 0}
+
+.rule-notice{
+  margin:14px 0 0;display:flex;gap:8px;align-items:flex-start;
+  background:#f5ecda;border:1px solid #e3d3b6;color:#6c4e26;
+  border-radius:10px;padding:10px 12px;font-size:11.5px;line-height:1.5;
+  animation:rise .25s var(--ease);
+}
+.rule-notice[hidden]{display:none}
+.rule-notice svg{width:14px;height:14px;flex-shrink:0;margin-top:1px}
+
+/* groups */
+.group{border-top:1px solid var(--line);margin-top:17px}
+.group-head{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
+  padding:15px 0 12px;list-style:none;cursor:pointer;user-select:none;
+}
+.group-head::-webkit-details-marker{display:none}
+.group-head>span:first-child{
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;color:var(--ink);
+}
+.group-meta{font-size:10.5px;color:var(--muted);font-weight:500;justify-self:end;text-align:right}
+.group-head::after{
+  content:"";width:6px;height:6px;border-right:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);
+  transform:rotate(45deg);transition:transform .2s var(--ease);margin-left:2px;
+}
+details:not([open]) .group-head::after{transform:rotate(-45deg)}
+.group-body{padding-bottom:17px}
+
+/* dimension fields */
+.field{margin-bottom:15px}
+.field-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+.field label{font-size:13px;font-weight:600}
+.num-wrap{
+  display:flex;align-items:center;gap:4px;height:34px;padding:0 8px;
+  background:var(--white);border:1px solid var(--line);border-radius:8px;
+  transition:border-color .16s,box-shadow .16s;
+}
+.num-wrap:focus-within{border-color:var(--wood);box-shadow:0 0 0 3px rgba(171,118,67,.12)}
+.num-wrap.is-invalid{border-color:var(--danger);box-shadow:0 0 0 3px rgba(160,75,46,.1)}
+.num-wrap input{
+  width:50px;border:0;background:none;text-align:right;outline:none;
+  font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;
+  -moz-appearance:textfield;padding:0;
+}
+.num-wrap input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.num-wrap span{font-size:9.5px;color:var(--muted);letter-spacing:.04em}
+.range{
+  -webkit-appearance:none;appearance:none;display:block;width:100%;height:20px;
+  background:transparent;margin:0;cursor:pointer;--fill:50%;
+}
+.range::-webkit-slider-runnable-track{
+  height:3px;border-radius:3px;
+  background:linear-gradient(to right,var(--wood) 0 var(--fill),var(--line) var(--fill) 100%);
+}
+.range::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:17px;height:17px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--wood);margin-top:-7px;
+  box-shadow:0 2px 6px rgba(60,45,25,.2);transition:transform .14s;
+}
+.range:hover::-webkit-slider-thumb{transform:scale(1.08)}
+.range:active::-webkit-slider-thumb{transform:scale(1.14)}
+.range::-moz-range-track{height:3px;border-radius:3px;background:var(--line)}
+.range::-moz-range-progress{height:3px;border-radius:3px;background:var(--wood)}
+.range::-moz-range-thumb{
+  width:14px;height:14px;border-radius:50%;background:var(--paper);
+  border:2px solid var(--wood);box-shadow:0 2px 6px rgba(60,45,25,.2);
+}
+.field-foot{
+  display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;
+  margin-top:1px;font-size:9.5px;color:var(--muted);font-variant-numeric:tabular-nums;
+}
+.field-msg{text-align:center;color:var(--danger);font-weight:600;min-height:12px;line-height:1.2}
+.micro-note{margin:3px 0 0;font-size:10px;color:var(--muted);opacity:.75;letter-spacing:.02em}
+
+/* material chips */
+.part-block + .part-block{margin-top:14px}
+.part-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px}
+.part-head>span:first-child{font-size:12.5px;font-weight:600}
+.part-current{font-size:10.5px;color:var(--muted);text-align:right}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  position:relative;width:32px;height:32px;padding:0;border:0;border-radius:50%;
+  background:var(--c);box-shadow:inset 0 0 0 1px rgba(33,31,27,.14);
+  transition:transform .15s var(--ease),box-shadow .15s;
+}
+.chip::after{
+  content:"";position:absolute;inset:8px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.9);opacity:0;transition:opacity .15s;
+}
+.chip[data-light="true"]::after{border-color:rgba(33,31,27,.55)}
+.chip:hover{transform:scale(1.09)}
+.chip.is-selected{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink)}
+.chip.is-selected::after{opacity:1}
+.part-block.is-focused .part-head>span:first-child{color:var(--wood-deep)}
+.part-block.is-focused .chip.is-selected{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--wood-deep)}
+.finish-row{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.finish-row .part-head{margin-bottom:8px}
+
+.segmented{
+  display:flex;gap:3px;padding:3px;background:var(--cream);
+  border:1px solid var(--line);border-radius:9px;
+}
+.segmented button{
+  flex:1;border:0;background:transparent;border-radius:7px;padding:7px 6px;
+  font-size:11.5px;font-weight:600;color:var(--muted);
+  transition:background .16s,color .16s,box-shadow .16s;white-space:nowrap;
+}
+.segmented button:hover:not(:disabled):not(.is-active){color:var(--ink)}
+.segmented button.is-active{background:var(--white);color:var(--ink);box-shadow:0 2px 7px rgba(50,40,25,.09)}
+.segmented button:disabled{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+
+/* components */
+.comp-row{margin-bottom:17px}
+.comp-row:last-child{margin-bottom:0}
+.comp-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.comp-label{font-size:13px;font-weight:600;display:block}
+.comp-hint{margin:4px 0 0;font-size:10.5px;line-height:1.45;color:var(--muted);max-width:252px}
+.comp-hint.is-blocked{color:var(--danger)}
+.stepper{
+  display:inline-flex;align-items:center;height:36px;flex-shrink:0;overflow:hidden;
+  border:1px solid var(--line);background:var(--white);border-radius:9px;
+}
+.stepper button{
+  width:32px;height:100%;border:0;background:transparent;
+  display:grid;place-items:center;font-size:16px;line-height:1;
+  color:var(--ink-soft);transition:background .14s;
+}
+.stepper button:hover:not(:disabled){background:var(--paper-2)}
+.stepper button:disabled{opacity:.22;cursor:not-allowed}
+.stepper output{
+  min-width:30px;text-align:center;font-size:13px;font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+.switch{
+  position:relative;width:46px;height:26px;flex-shrink:0;border-radius:999px;
+  border:1px solid var(--line-strong);background:var(--cream);transition:background .2s,border-color .2s;
+}
+.switch span{
+  position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;
+  background:var(--white);box-shadow:0 1px 4px rgba(30,25,18,.24);
+  transition:left .2s var(--ease);
+}
+.switch[aria-checked="true"]{background:var(--sage);border-color:var(--sage)}
+.switch[aria-checked="true"] span{left:22px}
+.switch:disabled{opacity:.4;cursor:not-allowed}
+
+/* summary */
+.summary{
+  margin:18px 0 8px;padding:17px;border:1px solid var(--line);
+  border-radius:var(--radius);background:var(--paper-2);
+}
+.summary-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+.summary-head h2{
+  margin:0;font-size:9.5px;letter-spacing:.17em;text-transform:uppercase;font-weight:700;
+}
+.summary-head span{
+  display:inline-flex;align-items:center;gap:5px;font-size:9px;
+  color:var(--sage);letter-spacing:.04em;font-weight:600;
+}
+.summary-head span::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--sage)}
+.summary dl{display:grid;gap:6px;margin:0}
+.summary dl>div{display:flex;justify-content:space-between;gap:14px;font-size:11.5px;line-height:1.45}
+.summary dt{color:var(--muted);flex-shrink:0}
+.summary dd{margin:0;text-align:right;font-weight:600;max-width:64%}
+.summary dd small{display:block;font-weight:500;color:var(--muted);font-size:10px;margin-top:1px}
+.summary .summary-comp dd{font-weight:500}
+.prototype-note{
+  margin:10px 0 2px;text-align:center;font-size:9px;letter-spacing:.05em;
+  color:var(--muted);opacity:.72;
+}
+
+/* panel CTA */
+.panel-cta{
+  display:grid;grid-template-columns:1fr auto;gap:8px;
+  padding:11px 22px calc(13px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line);background:var(--paper);
+  box-shadow:0 -12px 28px rgba(60,48,30,.045);z-index:2;
+}
+.panel-spec{
+  grid-column:1 / -1;display:flex;justify-content:space-between;gap:10px;
+  padding:0 2px 2px;font-size:9.5px;line-height:1.35;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.panel-spec span:last-child{text-align:right}
+.btn{
+  height:46px;border-radius:11px;border:1px solid transparent;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-size:12.5px;font-weight:700;letter-spacing:.01em;
+  transition:background .18s,color .18s,border-color .18s,transform .12s;
+  touch-action:manipulation;text-decoration:none;
+}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--ink);color:var(--cream)}
+.btn-primary:hover{background:var(--wood-deep)}
+.btn-ghost{border-color:var(--line-strong);background:transparent;color:var(--ink-soft);padding:0 14px}
+.btn-ghost:hover{border-color:var(--ink);background:var(--white)}
+.btn-block{width:100%}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.btn-text{
+  border:0;background:none;padding:4px 0;color:var(--muted);font-size:11.5px;
+  text-decoration:underline;text-underline-offset:3px;
+}
+.btn-text:hover{color:var(--ink)}
+
+/* ---------- modal ---------- */
+body.modal-open{overflow:hidden}
+.modal{
+  position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;
+  visibility:hidden;opacity:0;transition:opacity .22s var(--ease),visibility .22s;
+}
+.modal.is-open{visibility:visible;opacity:1}
+.modal-backdrop{
+  position:absolute;inset:0;background:rgba(30,26,20,.56);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+.modal-card{
+  position:relative;width:min(980px,100%);max-height:min(88dvh,840px);overflow:auto;
+  background:var(--paper);border-radius:20px;box-shadow:var(--shadow-soft);
+  transform:translateY(14px) scale(.992);transition:transform .3s var(--ease);
+  scrollbar-width:thin;
+}
+.modal.is-open .modal-card{transform:none}
+.modal-close{
+  position:absolute;top:12px;right:12px;z-index:3;width:36px;height:36px;
+  border:1px solid var(--line);border-radius:50%;background:rgba(251,248,241,.9);
+  display:grid;place-items:center;color:var(--ink-soft);transition:background .15s;
+}
+.modal-close:hover{background:var(--white)}
+.modal-close svg{width:15px;height:15px}
+.quote-grid{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr)}
+
+.quote-preview{
+  position:relative;display:flex;flex-direction:column;gap:12px;
+  padding:24px;background:linear-gradient(160deg,#f0e9dd,#e6dccb);
+  border-radius:20px 0 0 20px;
+}
+.preview-label{
+  font-size:9px;letter-spacing:.17em;text-transform:uppercase;
+  font-weight:700;color:var(--muted);
+}
+.quote-preview img{
+  width:100%;max-height:310px;object-fit:contain;border-radius:12px;
+  background:var(--cream);border:1px solid rgba(201,191,173,.7);
+}
+.preview-fallback{
+  display:grid;place-items:center;min-height:220px;border-radius:12px;
+  background:var(--cream);border:1px dashed var(--line-strong);
+  color:var(--muted);font-size:12px;text-align:center;padding:24px;line-height:1.6;
+}
+.preview-fallback[hidden]{display:none}
+.quote-specs{display:grid;gap:5px;margin:2px 0 0}
+.quote-specs>div{display:flex;justify-content:space-between;gap:12px;font-size:11px;line-height:1.4}
+.quote-specs dt{color:var(--muted)}
+.quote-specs dd{margin:0;text-align:right;font-weight:600;max-width:62%}
+.preview-link{
+  margin-top:auto;font-size:10.5px;color:var(--wood-deep);font-weight:600;
+  text-decoration:underline;text-underline-offset:3px;align-self:flex-start;
+}
+
+.quote-form{padding:30px 30px 28px}
+.eyebrow{
+  margin:0 0 6px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;color:var(--wood-deep);
+}
+.quote-form h2,.quote-success h2{
+  font-family:var(--font-display);font-weight:500;font-size:28px;
+  letter-spacing:-.01em;line-height:1.1;margin:0 0 8px;
+}
+.quote-intro{margin:0 0 18px;color:var(--muted);font-size:12px;line-height:1.6}
+.form-field{margin-bottom:12px}
+.form-field label{
+  display:block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:700;color:var(--muted);margin-bottom:5px;
+}
+.form-field input,.form-field textarea{
+  width:100%;border:1px solid var(--line-strong);background:var(--white);
+  border-radius:9px;height:43px;padding:0 12px;font-size:12.5px;outline:none;
+  transition:border-color .16s,box-shadow .16s;
+}
+.form-field textarea{height:auto;min-height:74px;padding:10px 12px;resize:vertical;line-height:1.5}
+.form-field input:focus,.form-field textarea:focus{
+  border-color:var(--wood);box-shadow:0 0 0 3px rgba(171,118,67,.13);
+}
+.form-field input::placeholder,.form-field textarea::placeholder{color:#b0a898}
+.form-field.has-error input,.form-field.has-error textarea{border-color:var(--danger)}
+.form-error{margin:4px 0 0;font-size:10px;font-weight:600;color:var(--danger)}
+.form-error[hidden]{display:none}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hp-field{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.form-note{margin:9px 0 0;font-size:9.5px;line-height:1.5;color:var(--muted);opacity:.8;text-align:center}
+#quoteForm .btn{margin-top:6px}
+
+.quote-success{padding:36px 32px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.quote-success[hidden]{display:none}
+.success-mark{
+  width:50px;height:50px;border-radius:50%;background:var(--sage);color:#fff;
+  display:grid;place-items:center;margin-bottom:4px;
+}
+.success-mark svg{width:23px;height:23px}
+.quote-success p{margin:0;font-size:12px;line-height:1.65;color:var(--muted)}
+.quote-success .success-code{
+  display:inline-flex;align-items:center;gap:8px;margin:4px 0 8px;
+  background:var(--paper-2);border:1px solid var(--line);border-radius:9px;
+  padding:8px 12px;font-size:11px;color:var(--ink-soft);
+}
+.quote-success .success-code b{letter-spacing:.08em}
+.success-actions{display:grid;gap:8px;margin-top:8px}
+.success-link{
+  margin-top:10px;padding:10px 12px;border-radius:9px;border:1px dashed var(--line-strong);
+  background:rgba(255,255,255,.5);
+}
+.success-link span{display:block;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;font-weight:700}
+.success-link code{font-size:10px;word-break:break-all;color:var(--ink-soft);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.quote-success .btn-text{align-self:center;margin-top:2px}
+.store-note{font-size:9px !important;color:var(--muted) !important;opacity:.8}
+
+/* confirm modal */
+.confirm-card{
+  position:relative;width:min(420px,100%);background:var(--paper);border-radius:18px;
+  padding:28px;box-shadow:var(--shadow-soft);transform:translateY(10px);transition:transform .26s var(--ease);
+}
+.modal.is-open .confirm-card{transform:none}
+.confirm-card h2{
+  font-family:var(--font-display);font-weight:500;font-size:23px;margin:0 0 8px;
+  letter-spacing:-.01em;
+}
+.confirm-card p{margin:0 0 20px;font-size:12.5px;line-height:1.6;color:var(--muted)}
+.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* toast */
+.toast{
+  position:fixed;left:50%;bottom:26px;z-index:200;max-width:calc(100vw - 40px);
+  transform:translate(-50%,18px);opacity:0;pointer-events:none;
+  background:var(--ink);color:var(--cream);border-radius:999px;
+  padding:11px 18px;font-size:11.5px;line-height:1.4;font-weight:500;
+  box-shadow:0 14px 34px rgba(25,20,14,.26);
+  transition:opacity .24s var(--ease),transform .24s var(--ease);
+  text-align:center;
+}
+.toast.is-on{opacity:1;transform:translate(-50%,0)}
+
+/* boot error */
+.boot-error{
+  position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:24px;
+  background:var(--cream);
+}
+.boot-error[hidden]{display:none}
+.boot-card{
+  max-width:420px;background:var(--paper);border:1px solid var(--line);
+  border-radius:16px;padding:28px;text-align:center;box-shadow:var(--shadow-soft);
+}
+.boot-card h1{font-family:var(--font-display);font-weight:500;font-size:24px;margin:0 0 8px}
+.boot-card p{font-size:12.5px;line-height:1.6;color:var(--muted);margin:0 0 18px}
+
+/* responsive */
+@media (max-width:1180px){
+  .studio{grid-template-columns:minmax(0,1fr) 372px}
+  .brand-text span{display:none}
+}
+@media (max-width:1023px){
+  .studio{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 45%}
+  .viewport{order:1}
+  .panel{order:2;border-left:0;border-top:1px solid var(--line);box-shadow:0 -14px 36px rgba(60,48,30,.07)}
+  .panel-scroll{padding:18px 22px 6px}
+  .topbar{padding:11px 18px;gap:14px}
+  .brand-text span{display:block}
+}
+@media (max-width:767px){
+  body{overflow:hidden}
+  .topbar{
+    grid-template-columns:1fr auto;
+    grid-template-areas:"brand actions" "models models";
+    gap:9px 10px;padding:10px 14px;
+  }
+  .brand{grid-area:brand}
+  .top-actions{grid-area:actions}
+  .models{grid-area:models;width:100%;justify-content:stretch;overflow-x:auto;scrollbar-width:none}
+  .models::-webkit-scrollbar{display:none}
+  .model-tab{flex:1;padding:6px 8px}
+  .model-tab b{font-size:11.5px}
+  .model-tab small{font-size:7.5px}
+  .brand-mark{width:36px;height:36px;font-size:12px;border-radius:10px}
+  .brand-text strong{font-size:16px}
+  .brand-text span{display:none}
+  .icon-btn{width:36px;height:36px}
+  .studio{display:block;overflow:hidden}
+  .viewport{position:absolute;inset:0 0 54dvh 0;height:auto}
+  .panel{
+    position:absolute;left:0;right:0;bottom:0;height:56dvh;
+    border-radius:18px 18px 0 0;border-left:0;border-top:1px solid var(--line-strong);
+    box-shadow:0 -16px 44px rgba(50,40,25,.16);
+    transition:height .32s var(--ease);
+  }
+  .panel.is-open{height:88dvh}
+  .sheet-handle{
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    height:26px;border:0;background:transparent;touch-action:none;
+  }
+  .sheet-handle span{width:44px;height:4px;border-radius:99px;background:var(--line-strong)}
+  .panel-scroll{padding:0 16px 6px}
+  .panel-cta{padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+  .product-head h1{font-size:22px;margin:7px 0 5px}
+  .product-head p{font-size:11.5px;line-height:1.5}
+  .product-head .head-meta{margin-top:8px;font-size:8.5px}
+  .head-rule{margin-top:12px}
+  .group{margin-top:13px}
+  .group-head{padding:12px 0 10px}
+  .vp-top{top:10px;left:10px;right:10px}
+  .vp-badge{font-size:8.5px;padding:6px 10px;letter-spacing:.1em}
+  .vp-tools{gap:5px}
+  .vp-btn{height:34px;padding:0 10px;font-size:10.5px}
+  .vp-btn span{display:none}
+  .vp-btn svg{width:15px;height:15px}
+  .vp-hint{display:none}
+  .vp-selection{left:10px;bottom:10px;max-width:calc(100% - 20px);font-size:10.5px}
+  .btn{height:44px}
+  .chip{width:36px;height:36px}
+  .range{height:28px}
+  .range::-webkit-slider-thumb{width:20px;height:20px;margin-top:-8.5px}
+  .stepper{height:40px}
+  .stepper button{width:37px}
+  .modal{padding:10px}
+  .modal-card{max-height:94dvh;border-radius:16px}
+  .quote-grid{grid-template-columns:1fr}
+  .quote-preview{border-radius:16px 16px 0 0;padding:16px;gap:9px}
+  .quote-preview img{max-height:190px}
+  .quote-form{padding:20px 18px 24px}
+  .quote-form h2,.quote-success h2{font-size:23px}
+  .quote-intro{margin-bottom:14px;font-size:11.5px}
+  .quote-success{padding:26px 20px 30px}
+  .form-row{grid-template-columns:1fr;gap:0}
+  .confirm-card{padding:22px}
+  .toast{bottom:calc(18px + env(safe-area-inset-bottom))}
+}
+@media (max-width:380px){
+  .model-tab small{display:none}
+  .brand-text strong{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">RK</span>
+      <div class="brand-text">
+        <strong>Ruang Kayu</strong>
+        <span>Custom furniture studio</span>
+      </div>
+    </div>
+
+    <nav class="models" id="modelTabs" role="tablist" aria-label="Pilih model furniture">
+      <button class="model-tab" type="button" data-model="meja" role="tab" aria-selected="false">
+        <b>Meja</b><small>Dasar</small>
+      </button>
+      <button class="model-tab" type="button" data-model="arun" role="tab" aria-selected="false">
+        <b>Lemari</b><small>Menengah</small>
+      </button>
+      <button class="model-tab" type="button" data-model="bima" role="tab" aria-selected="false">
+        <b>Kabinet</b><small>Menengah</small>
+      </button>
+    </nav>
+
+    <div class="top-actions">
+      <button class="icon-btn" id="btnUndo" type="button" title="Undo (Ctrl+Z)" aria-label="Urungkan perubahan" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>
+      </button>
+      <button class="icon-btn" id="btnRedo" type="button" title="Redo (Shift+Ctrl+Z)" aria-label="Ulangi perubahan" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>
+      </button>
+      <button class="icon-btn" id="btnReset" type="button" title="Reset konfigurasi" aria-label="Reset konfigurasi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.7-6.4L3 8"/><path d="M3 3v5h5"/></svg>
+      </button>
+      <button class="icon-btn" id="btnShareTop" type="button" title="Salin tautan desain" aria-label="Salin tautan desain">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.1-1.1"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="studio">
+    <section class="viewport" id="viewport" aria-label="Pratinjau 3D furniture">
+      <div class="canvas-host" id="canvasHost"></div>
+
+      <div class="vp-top">
+        <span class="vp-badge"><i></i> Pratinjau 3D · skala 1:1</span>
+        <div class="vp-tools">
+          <button class="vp-btn" id="btnOpen" type="button" hidden title="Buka semua pintu dan laci">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21h16"/><path d="M6 21V4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v17"/><path d="M13.5 12h.01"/><path d="m18 8 3 3-3 3"/></svg>
+            <span>Buka semua</span>
+          </button>
+          <button class="vp-btn" id="btnMeasure" type="button" aria-pressed="false" title="Tampilkan garis ukur">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 14-14 4 4L7 21l-4-4Z"/><path d="m7 13 2 2M11 9l2 2M15 5l2 2"/></svg>
+            <span>Ukuran</span>
+          </button>
+          <button class="vp-btn" id="btnViewReset" type="button" title="Kembali ke sudut awal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11 12 4l8 7v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M9 21v-6h6v6"/></svg>
+            <span>Sudut awal</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="vp-selection" id="selectionInfo" aria-live="polite">
+        <b id="selectionName">Komponen</b>
+        <span id="selectionDims"></span>
+        <button type="button" id="selectionClose" aria-label="Tutup info komponen">×</button>
+      </div>
+      <p class="vp-hint">Klik pintu atau laci untuk membuka · seret untuk memutar</p>
+
+      <div class="loader" id="loader">
+        <div class="loader-card">
+          <span class="loader-mark" aria-hidden="true">RK</span>
+          <div class="loader-bar"><span></span></div>
+          <p>Menyiapkan model 3D</p>
+        </div>
+      </div>
+
+      <div class="webgl-fallback" id="webglFallback">
+        <div class="fallback-card">
+          <strong>Perangkat ini belum mendukung 3D</strong>
+          <p>Pratinjau 3D memerlukan WebGL 2. Anda tetap dapat menyusun spesifikasi dan mengirim permintaan penawaran dari panel di samping.</p>
+          <button class="btn btn-primary btn-block" type="button" id="fallbackQuoteBtn">Minta penawaran tanpa pratinjau</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel" id="panel" aria-label="Panel konfigurasi">
+      <button class="sheet-handle" id="sheetHandle" type="button" aria-expanded="false" aria-controls="panelScroll" aria-label="Buka atau tutup panel pengaturan">
+        <span></span>
+      </button>
+      <div class="panel-scroll" id="panelScroll">
+        <header class="product-head" id="productHead"></header>
+        <div class="rule-notice" id="ruleNotice" role="status" aria-live="polite" hidden></div>
+        <div id="controls"></div>
+        <section class="summary" id="summary" aria-label="Ringkasan spesifikasi"></section>
+        <p class="prototype-note">Prototype · konfigurasi disimpan di tautan, permintaan di peramban</p>
+      </div>
+      <div class="panel-cta">
+        <div class="panel-spec" id="panelSpec"></div>
+        <button class="btn btn-primary" id="btnQuote" type="button">Minta penawaran</button>
+        <button class="btn btn-ghost" id="btnShare" type="button" aria-label="Salin tautan desain">Salin tautan</button>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<!-- quote modal -->
+<div class="modal" id="quoteModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close="quoteModal"></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="quoteTitle">
+    <button class="modal-close" type="button" data-close="quoteModal" aria-label="Tutup formulir">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+    </button>
+
+    <div class="quote-grid">
+      <div class="quote-preview">
+        <span class="preview-label">Pratinjau konfigurasi</span>
+        <img id="quoteSnapshot" alt="Pratinjau 3D konfigurasi furniture">
+        <div class="preview-fallback" id="quoteFallback" hidden>Pratinjau 3D tidak tersedia di perangkat ini. Spesifikasi tetap terkirim lengkap.</div>
+        <dl class="quote-specs" id="quoteSpecs"></dl>
+        <a class="preview-link" id="quoteShareLink" href="#" target="_blank" rel="noopener">Buka tautan desain di tab baru</a>
+      </div>
+
+      <div class="quote-form" id="quoteFormView">
+        <p class="eyebrow">Langkah terakhir</p>
+        <h2 id="quoteTitle">Minta penawaran</h2>
+        <p class="quote-intro">Spesifikasi dan pratinjau terlampir otomatis. Admin akan menindaklanjuti lewat WhatsApp.</p>
+        <form id="quoteForm" novalidate>
+          <div class="form-field" data-field="name">
+            <label for="qName">Nama</label>
+            <input id="qName" name="name" type="text" autocomplete="name" placeholder="Nama lengkap" required>
+            <p class="form-error" hidden></p>
+          </div>
+          <div class="form-row">
+            <div class="form-field" data-field="phone">
+              <label for="qPhone">Nomor WhatsApp</label>
+              <input id="qPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0812 3456 7890" required>
+              <p class="form-error" hidden></p>
+            </div>
+            <div class="form-field" data-field="city">
+              <label for="qCity">Kota</label>
+              <input id="qCity" name="city" type="text" autocomplete="address-level2" placeholder="Jakarta" required>
+              <p class="form-error" hidden></p>
+            </div>
+          </div>
+          <div class="form-field" data-field="email">
+            <label for="qEmail">Email <span style="text-transform:none;letter-spacing:0;font-weight:500">(opsional)</span></label>
+            <input id="qEmail" name="email" type="email" autocomplete="email" placeholder="nama@email.com">
+            <p class="form-error" hidden></p>
+          </div>
+          <div class="form-field" data-field="notes">
+            <label for="qNotes">Catatan</label>
+            <textarea id="qNotes" name="notes" placeholder="Contoh: warna disesuaikan dengan lantai, pengiriman ke Bandung."></textarea>
+          </div>
+          <div class="hp-field" aria-hidden="true">
+            <label for="qWebsite">Jangan diisi</label>
+            <input id="qWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Kirim permintaan</button>
+          <p class="form-note">Data kontak hanya dipakai untuk menindaklanjuti permintaan ini.</p>
+        </form>
+      </div>
+
+      <div class="quote-success" id="quoteSuccess" hidden>
+        <span class="success-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+        </span>
+        <p class="eyebrow">Permintaan terkirim</p>
+        <h2>Terima kasih, <span id="successName">Anda</span></h2>
+        <p>Spesifikasi lengkap, pratinjau 3D, dan tautan desain sudah tersimpan. Admin akan menghubungi Anda pada jam kerja.</p>
+        <div class="success-code">Kode permintaan <b id="successCode">RK-000000</b></div>
+        <div class="success-actions">
+          <a class="btn btn-primary" id="waLink" href="#" target="_blank" rel="noopener">Buka WhatsApp</a>
+          <button class="btn btn-ghost" id="successCopy" type="button">Salin tautan desain</button>
+        </div>
+        <div class="success-link">
+          <span>Tautan desain</span>
+          <code id="successLink"></code>
+        </div>
+        <p class="store-note">Prototype: permintaan disimpan di localStorage peramban ini.</p>
+        <button class="btn-text" type="button" data-close="quoteModal">Kembali ke konfigurator</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- reset confirm -->
+<div class="modal" id="resetModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close="resetModal"></div>
+  <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+    <h2 id="resetTitle">Reset konfigurasi?</h2>
+    <p>Ukuran, material, dan komponen kembali ke pengaturan awal. Tindakan ini bisa diurungkan dengan Ctrl+Z.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" type="button" data-close="resetModal">Batal</button>
+      <button class="btn btn-primary" type="button" id="btnResetConfirm">Reset</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="boot-error" id="bootError" hidden>
+  <div class="boot-card">
+    <h1>Mesin 3D gagal dimuat</h1>
+    <p>Periksa koneksi internet lalu muat ulang halaman. Prototype ini mengambil Three.js dari CDN.</p>
+    <button class="btn btn-primary" type="button" onclick="location.reload()">Muat ulang</button>
+  </div>
+</div>
+
+<script>
+  window.__rkReady = false;
+  window.setTimeout(function () {
+    if (!window.__rkReady) {
+      var boot = document.getElementById('bootError');
+      if (boot) boot.hidden = false;
+    }
+  }, 12000);
+</script>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+/* ============================================================
+   1. Data: material, model, aturan
+   ============================================================ */
+
+const MATERIALS = {
+  oak:       { name:'Oak Natural', hex:'#b98e60', kind:'wood',  rough:.62 },
+  walnut:    { name:'Walnut',      hex:'#6d4a33', kind:'wood',  rough:.56 },
+  mahogany:  { name:'Mahoni',      hex:'#7a3d29', kind:'wood',  rough:.52 },
+  ash:       { name:'Ash Muda',    hex:'#d3bd98', kind:'wood',  rough:.64 },
+  ivory:     { name:'Ivory',       hex:'#ece4d6', kind:'paint', rough:.74 },
+  sage:      { name:'Sage',        hex:'#7c8a71', kind:'paint', rough:.72 },
+  charcoal:  { name:'Charcoal',    hex:'#3b3a36', kind:'paint', rough:.64 },
+  clay:      { name:'Terracotta',  hex:'#b46d50', kind:'paint', rough:.72 },
+  brass:     { name:'Kuningan',    hex:'#b08a55', kind:'metal', rough:.3, metalness:.86 },
+  blacksteel:{ name:'Baja Hitam',  hex:'#2b2a28', kind:'metal', rough:.42, metalness:.68 },
+  nickel:    { name:'Nikel',       hex:'#b7b4ad', kind:'metal', rough:.27, metalness:.9 }
+};
+
+const FINISHES = [
+  { id:'matte', name:'Matte' },
+  { id:'satin', name:'Satin' },
+  { id:'gloss', name:'Gloss' }
+];
+
+const WOOD = ['oak','walnut','mahogany','ash'];
+const PAINT = ['ivory','sage','charcoal','clay'];
+const SURFACE = [...WOOD, ...PAINT];
+const METAL = ['brass','blacksteel','nickel'];
+
+const MODEL_PARTS = {
+  meja: [
+    { id:'top',  label:'Daun meja', short:'Daun', options:SURFACE },
+    { id:'legs', label:'Kaki & rangka', short:'Kaki', options:[...WOOD,'charcoal','blacksteel'] }
+  ],
+  arun: [
+    { id:'body',   label:'Badan', short:'Badan', options:SURFACE },
+    { id:'doors',  label:'Pintu & laci', short:'Pintu', options:SURFACE },
+    { id:'legs',   label:'Kaki / plinth', short:'Kaki', options:[...WOOD,'charcoal'] },
+    { id:'handle', label:'Gagang', short:'Gagang', options:METAL }
+  ],
+  bima: [
+    { id:'body',   label:'Badan', short:'Badan', options:SURFACE },
+    { id:'doors',  label:'Pintu & laci', short:'Pintu', options:SURFACE },
+    { id:'legs',   label:'Kaki / plinth', short:'Kaki', options:[...WOOD,'charcoal'] },
+    { id:'handle', label:'Gagang', short:'Gagang', options:METAL }
+  ]
+};
+
+const DOOR_STYLES = [
+  { value:'solid',  label:'Solid' },
+  { value:'shaker', label:'Shaker' },
+  { value:'glass',  label:'Kaca' }
+];
+
+const MODELS = {
+  meja: {
+    id:'meja',
+    name:'Meja Makan Rangga',
+    short:'Meja',
+    tier:'Dasar',
+    tagline:'Meja makan kayu solid untuk empat sampai enam orang, dibuat mengikuti ruang makan Anda.',
+    dims:{
+      w:{ label:'Lebar', min:120, max:240, step:5, def:180 },
+      h:{ label:'Tinggi', min:68, max:78, step:1, def:74 },
+      d:{ label:'Kedalaman', min:70, max:100, step:5, def:90 }
+    },
+    parts: MODEL_PARTS.meja,
+    defaults:{
+      mats:{ top:'oak', legs:'charcoal' },
+      finish:'satin',
+      comps:{ legStyle:'padat', topThickness:4 }
+    },
+    components:[
+      {
+        type:'choice', id:'legStyle', label:'Bentuk kaki',
+        options:[
+          { value:'padat', label:'Padat' },
+          { value:'ramping', label:'Ramping' },
+          { value:'bulat', label:'Bulat' }
+        ],
+        hint:(cfg) => cfg.dims.w >= 200
+          ? 'Penyangga tengah otomatis ditambahkan untuk lebar 200 cm ke atas.'
+          : 'Penyangga tengah otomatis muncul saat lebar mencapai 200 cm.'
+      },
+      {
+        type:'stepper', id:'topThickness', label:'Tebal daun meja', unit:'cm',
+        hint:() => 'Rentang 3–6 cm. Daun lebih tebal memberi kesan lebih kokoh.'
+      }
+    ]
+  },
+
+  arun: {
+    id:'arun',
+    name:'Lemari Pakaian Arun',
+    short:'Lemari',
+    tier:'Menengah',
+    tagline:'Lemari dua sampai empat pintu dengan rak dan laci yang mengikuti tinggi ruangan.',
+    dims:{
+      w:{ label:'Lebar', min:80, max:240, step:5, def:160 },
+      h:{ label:'Tinggi', min:180, max:240, step:5, def:210 },
+      d:{ label:'Kedalaman', min:45, max:65, step:5, def:60 }
+    },
+    parts: MODEL_PARTS.arun,
+    defaults:{
+      mats:{ body:'oak', doors:'sage', legs:'charcoal', handle:'brass' },
+      finish:'satin',
+      comps:{ doors:3, shelves:2, drawers:0, doorStyle:'shaker' }
+    },
+    components:[
+      {
+        type:'stepper', id:'doors', label:'Jumlah pintu',
+        hint:(cfg, lim) => `Maksimal 60 cm per pintu — minimal ${lim.doors.min} pintu untuk lebar ${cfg.dims.w} cm.`
+      },
+      {
+        type:'choice', id:'doorStyle', label:'Model pintu', options:DOOR_STYLES,
+        hint:() => 'Kaca memberi kesan ringan; shaker memiliki bingkai dan panel cekung.'
+      },
+      {
+        type:'stepper', id:'shelves', label:'Jumlah rak',
+        hint:(cfg, lim) => `Jarak antar rak minimal 25 cm — maksimal ${lim.shelves.max} rak.`
+      },
+      {
+        type:'stepper', id:'drawers', label:'Jumlah laci',
+        hint:(cfg, lim) => lim.drawers.max > 0
+          ? `Tinggi per laci 18 cm — maksimal ${lim.drawers.max} laci.`
+          : 'Tinggi lemari belum cukup untuk laci.'
+      }
+    ]
+  },
+
+  bima: {
+    id:'bima',
+    name:'Kabinet TV Bima',
+    short:'Kabinet',
+    tier:'Menengah',
+    tagline:'Kabinet rendah dengan pintu, laci, atau relung terbuka untuk perangkat media.',
+    dims:{
+      w:{ label:'Lebar', min:120, max:240, step:5, def:180 },
+      h:{ label:'Tinggi', min:40, max:70, step:1, def:50 },
+      d:{ label:'Kedalaman', min:35, max:50, step:1, def:42 }
+    },
+    parts: MODEL_PARTS.bima,
+    defaults:{
+      mats:{ body:'walnut', doors:'ivory', legs:'charcoal', handle:'brass' },
+      finish:'satin',
+      comps:{ doors:2, shelves:1, drawers:0, doorStyle:'solid', open:true }
+    },
+    components:[
+      {
+        type:'stepper', id:'doors', label:'Jumlah pintu',
+        hint:(cfg, lim) => `Maksimal 60 cm per pintu — minimal ${lim.doors.min} pintu.`
+      },
+      {
+        type:'choice', id:'doorStyle', label:'Model pintu', options:DOOR_STYLES,
+        hint:() => 'Pintu kaca memerlukan lebar minimal 32 cm per daun.'
+      },
+      {
+        type:'stepper', id:'drawers', label:'Jumlah laci',
+        hint:(cfg, lim) => lim.drawers.max > 0
+          ? `Laci mengisi sisi kanan — maksimal ${lim.drawers.max} laci.`
+          : 'Tinggi kabinet belum cukup untuk laci.'
+      },
+      {
+        type:'toggle', id:'open', label:'Relung terbuka',
+        hint:(cfg, lim) => lim.open.disabled
+          ? lim.open.reason
+          : 'Area tanpa pintu di sisi kanan untuk receiver atau konsol.'
+      },
+      {
+        type:'stepper', id:'shelves', label:'Rak dalam',
+        hint:(cfg, lim) => `Rak di area pintu — maksimal ${lim.shelves.max} rak.`
+      }
+    ]
+  }
+};
+
+const BIMA = { plinth:6, side:2.2, top:2.2, back:1.2, drawer:16, door:2, gap:.35, bankW:45 };
+const ARUN = { plinth:8, side:2.4, top:2.4, back:1.2, drawer:18, door:2, gap:.4 };
+
+function clamp(v, min, max){ return Math.min(max, Math.max(min, v)); }
+
+function bimaZones(cfg){
+  const w = cfg.dims.w;
+  const nicheW = clamp(w * 0.34, 45, 60);
+  const rightW = cfg.comps.drawers > 0 ? BIMA.bankW : (cfg.comps.open ? nicheW : 0);
+  return { nicheW, rightW, doorW: w - rightW };
+}
+
+function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+function defaultCfg(modelId){
+  const m = MODELS[modelId];
+  const cfg = {
+    dims:{},
+    mats:Object.assign({}, m.defaults.mats),
+    finish:m.defaults.finish,
+    comps:clone(m.defaults.comps)
+  };
+  for (const key of ['w','h','d']) cfg.dims[key] = m.dims[key].def;
+  return cfg;
+}
+
+/**
+ * Menormalkan konfigurasi dan menghitung batas komponen.
+ * Dipakai oleh panel, sejarah undo, dan tautan desain.
+ */
+function evaluate(modelId, input){
+  const m = MODELS[modelId];
+  const cfg = clone(input);
+  const notices = [];
+  const limits = {};
+
+  for (const key of ['w','h','d']){
+    const spec = m.dims[key];
+    let v = Number(cfg.dims[key]);
+    if (!Number.isFinite(v)) v = spec.def;
+    v = clamp(Math.round((v - spec.min) / spec.step) * spec.step + spec.min, spec.min, spec.max);
+    cfg.dims[key] = v;
+  }
+
+  if (modelId === 'meja'){
+    limits.topThickness = { min:3, max:6 };
+    limits.legStyle = { options:{} };
+    cfg.comps.topThickness = clamp(Math.round(cfg.comps.topThickness || 4), 3, 6);
+    if (!['padat','ramping','bulat'].includes(cfg.comps.legStyle)) cfg.comps.legStyle = 'padat';
+  }
+
+  if (modelId === 'arun'){
+    const innerH = cfg.dims.h - ARUN.plinth - ARUN.top;
+    const maxDrawers = clamp(Math.floor((innerH - 90) / ARUN.drawer), 0, 4);
+    if (cfg.comps.drawers > maxDrawers){
+      notices.push(`Tinggi ${cfg.dims.h} cm hanya memuat ${maxDrawers} laci; jumlah laci disesuaikan.`);
+      cfg.comps.drawers = maxDrawers;
+    }
+    cfg.comps.drawers = clamp(Math.round(cfg.comps.drawers || 0), 0, maxDrawers);
+
+    const upperH = innerH - cfg.comps.drawers * ARUN.drawer;
+    const maxShelves = Math.max(0, Math.floor(upperH / 25) - 1);
+    if (cfg.comps.shelves > maxShelves){
+      notices.push(`Jarak antar rak minimal 25 cm; jumlah rak disesuaikan ke ${maxShelves}.`);
+      cfg.comps.shelves = maxShelves;
+    }
+    cfg.comps.shelves = clamp(Math.round(cfg.comps.shelves || 0), 0, maxShelves);
+
+    const minDoors = Math.max(2, Math.ceil(cfg.dims.w / 60));
+    if (cfg.comps.doors < minDoors){
+      notices.push(`Lebar ${cfg.dims.w} cm memerlukan minimal ${minDoors} pintu (maksimal 60 cm per daun); pintu disesuaikan.`);
+      cfg.comps.doors = minDoors;
+    }
+    cfg.comps.doors = clamp(Math.round(cfg.comps.doors || 2), minDoors, 4);
+
+    const doorW = cfg.dims.w / cfg.comps.doors;
+    limits.doors = { min:minDoors, max:4 };
+    limits.shelves = { min:0, max:maxShelves };
+    limits.drawers = { min:0, max:maxDrawers };
+    limits.optionDisabled = { doorStyle:{} };
+    if (doorW < 32) limits.optionDisabled.doorStyle.glass = `Daun pintu ${Math.round(doorW)} cm — kaca butuh minimal 32 cm.`;
+    if (cfg.comps.doorStyle === 'glass' && doorW < 32){
+      cfg.comps.doorStyle = 'shaker';
+      notices.push('Pintu kaca tidak tersedia untuk daun yang terlalu sempit; model pintu dialihkan ke shaker.');
+    }
+    if (!DOOR_STYLES.some(s => s.value === cfg.comps.doorStyle)) cfg.comps.doorStyle = 'solid';
+  }
+
+  if (modelId === 'bima'){
+    const innerH = cfg.dims.h - BIMA.plinth - BIMA.top;
+    const maxDrawers = clamp(Math.floor(innerH / BIMA.drawer), 0, 3);
+    if (cfg.comps.drawers > maxDrawers){
+      notices.push(`Tinggi ${cfg.dims.h} cm hanya memuat ${maxDrawers} laci; jumlah laci disesuaikan.`);
+      cfg.comps.drawers = maxDrawers;
+    }
+    cfg.comps.drawers = clamp(Math.round(cfg.comps.drawers || 0), 0, maxDrawers);
+
+    if (cfg.comps.drawers > 0 && cfg.comps.open){
+      cfg.comps.open = false;
+      notices.push('Relung terbuka dimatikan karena laci menempati sisi kanan kabinet.');
+    }
+
+    const maxShelves = clamp(Math.floor((cfg.dims.h - 10) / 20) - 1, 0, 2);
+    cfg.comps.shelves = clamp(Math.round(cfg.comps.shelves || 0), 0, maxShelves);
+
+    const zones = bimaZones(cfg);
+    const minDoors = Math.max(1, Math.ceil(zones.doorW / 60));
+    if (cfg.comps.doors < minDoors){
+      notices.push(`Sisa area pintu ${Math.round(zones.doorW)} cm memerlukan minimal ${minDoors} pintu; pintu disesuaikan.`);
+      cfg.comps.doors = minDoors;
+    }
+    cfg.comps.doors = clamp(Math.round(cfg.comps.doors || 2), minDoors, 4);
+
+    const doorW = zones.doorW / cfg.comps.doors;
+    limits.doors = { min:minDoors, max:4 };
+    limits.shelves = { min:0, max:maxShelves };
+    limits.drawers = { min:0, max:maxDrawers };
+    limits.open = cfg.comps.drawers > 0
+      ? { disabled:true, reason:'Nonaktif: laci menempati sisi kanan kabinet.' }
+      : { disabled:false, reason:'' };
+    limits.optionDisabled = { doorStyle:{} };
+    if (doorW < 32) limits.optionDisabled.doorStyle.glass = `Daun pintu ${Math.round(doorW)} cm — kaca butuh minimal 32 cm.`;
+    if (cfg.comps.doorStyle === 'glass' && doorW < 32){
+      cfg.comps.doorStyle = 'solid';
+      notices.push('Pintu kaca tidak tersedia untuk daun yang terlalu sempit; model pintu dialihkan ke solid.');
+    }
+    if (!DOOR_STYLES.some(s => s.value === cfg.comps.doorStyle)) cfg.comps.doorStyle = 'solid';
+  }
+
+  return { cfg, notices, limits };
+}
+
+function compSummary(modelId, cfg){
+  if (modelId === 'meja'){
+    const leg = { padat:'kaki padat', ramping:'kaki ramping', bulat:'kaki bulat' }[cfg.comps.legStyle];
+    return `${leg} · tebal daun ${cfg.comps.topThickness} cm`;
+  }
+  const style = { solid:'solid', shaker:'shaker', glass:'kaca' }[cfg.comps.doorStyle] || 'solid';
+  let text = `${cfg.comps.doors} pintu ${style} · ${cfg.comps.shelves} rak · ${cfg.comps.drawers > 0 ? cfg.comps.drawers + ' laci' : 'tanpa laci'}`;
+  if (modelId === 'bima' && cfg.comps.open) text += ' · relung terbuka';
+  return text;
+}
+
+/* ============================================================
+   2. State, scene, geometri parametrik
+   ============================================================ */
+
+const state = { modelId:'arun', cfg:null, limits:null, lastNotices:[] };
+
+const matCache = new Map();
+const texCache = new Map();
+
+let renderer = null;
+let scene = null;
+let camera = null;
+let controls = null;
+let labelRenderer = null;
+let labelLayer = null;
+let furnitureGroup = null;
+let shadowBlob = null;
+let measureGroup = null;
+let selectedPart = null;
+let selectedMeshes = [];
+let needsRender = true;
+let rebuildDirty = false;
+let frameDirty = true;
+let measureOn = false;
+let firstRenderDone = false;
+let clock = null;
+
+const interactives = new Map();
+const openKeys = new Set();
+
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color:0xdbe6e2, roughness:.08, metalness:0, transparent:true, opacity:.3,
+  side:THREE.DoubleSide, envMapIntensity:1.4, depthWrite:false
+});
+
+const PART_LABELS = {
+  top:'Daun meja',
+  legs:'Kaki / rangka',
+  body:'Badan',
+  doors:'Pintu & laci',
+  handle:'Gagang'
+};
+
+function roundCm(v){ return Math.round(v); }
+
+function disposeGroup(group){
+  group.traverse(obj => {
+    if (obj.isMesh || obj.isLine || obj.isLineSegments){
+      if (obj.geometry) obj.geometry.dispose();
+    }
+    if (obj.isCSS2DObject && obj.element) obj.element.remove();
+  });
+}
+
+function makeBackdropTexture(){
+  const c = document.createElement('canvas');
+  c.width = 32; c.height = 512;
+  const g = c.getContext('2d');
+  const grad = g.createLinearGradient(0, 0, 0, 512);
+  grad.addColorStop(0, '#f9f5ed');
+  grad.addColorStop(.52, '#eee7da');
+  grad.addColorStop(1, '#e2d8c7');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 32, 512);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.magFilter = THREE.LinearFilter;
+  return tex;
+}
+
+function makeBlobTexture(){
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(128, 128, 6, 128, 128, 126);
+  grad.addColorStop(0, 'rgba(38,30,20,.30)');
+  grad.addColorStop(.5, 'rgba(38,30,20,.13)');
+  grad.addColorStop(1, 'rgba(38,30,20,0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 256, 256);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function initScene(){
+  const viewport = document.getElementById('viewport');
+  const host = document.getElementById('canvasHost');
+
+  try {
+    const probe = document.createElement('canvas');
+    if (!probe.getContext('webgl2')) throw new Error('WebGL 2 tidak tersedia');
+    renderer = new THREE.WebGLRenderer({
+      antialias:true,
+      alpha:false,
+      preserveDrawingBuffer:true,
+      powerPreference:'high-performance'
+    });
+  } catch (err){
+    console.warn('[Ruang Kayu] WebGL tidak tersedia:', err);
+    viewport.classList.add('no-webgl');
+    viewport.classList.add('is-ready');
+    return false;
+  }
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = .9;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.domElement.setAttribute('aria-label', 'Pratinjau 3D interaktif. Seret untuk memutar, scroll untuk memperbesar.');
+  host.appendChild(renderer.domElement);
+
+  scene = new THREE.Scene();
+  scene.background = makeBackdropTexture();
+  scene.fog = new THREE.Fog(0xe7ded0, 1500, 3600);
+
+  camera = new THREE.PerspectiveCamera(32, 1, 1, 8000);
+  camera.position.set(300, 250, 380);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = .085;
+  controls.minPolarAngle = .12;
+  controls.maxPolarAngle = Math.PI / 2 - .035;
+  controls.screenSpacePanning = true;
+  controls.zoomSpeed = .82;
+  controls.rotateSpeed = .72;
+  controls.addEventListener('change', () => { needsRender = true; });
+
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environmentIntensity = .55;
+  pmrem.dispose();
+
+  const hemi = new THREE.HemisphereLight(0xfffaf0, 0xbaa98f, .5);
+  scene.add(hemi);
+
+  const key = new THREE.DirectionalLight(0xfff1dc, 1.4);
+  key.position.set(240, 430, 290);
+  key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.camera.near = 60;
+  key.shadow.camera.far = 1200;
+  key.shadow.camera.left = -650;
+  key.shadow.camera.right = 650;
+  key.shadow.camera.top = 650;
+  key.shadow.camera.bottom = -650;
+  key.shadow.bias = -0.00035;
+  key.shadow.normalBias = 0.9;
+  key.shadow.radius = 4;
+  scene.add(key);
+
+  const fill = new THREE.DirectionalLight(0xdde5ef, .28);
+  fill.position.set(-260, 190, -150);
+  scene.add(fill);
+
+  const rim = new THREE.DirectionalLight(0xffffff, .38);
+  rim.position.set(-90, 150, -340);
+  scene.add(rim);
+
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(9000, 9000),
+    new THREE.MeshStandardMaterial({ color:0xe9e1d3, roughness:.97, metalness:0 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  shadowBlob = new THREE.Mesh(
+    new THREE.CircleGeometry(1, 48),
+    new THREE.MeshBasicMaterial({
+      map:makeBlobTexture(), transparent:true, opacity:.72,
+      depthWrite:false, toneMapped:false
+    })
+  );
+  shadowBlob.rotation.x = -Math.PI / 2;
+  shadowBlob.position.y = .22;
+  shadowBlob.renderOrder = 1;
+  scene.add(shadowBlob);
+
+  labelRenderer = new CSS2DRenderer();
+  labelRenderer.domElement.className = 'label-layer';
+  viewport.appendChild(labelRenderer.domElement);
+
+  const resize = () => {
+    const rect = viewport.getBoundingClientRect();
+    const w = Math.max(1, rect.width);
+    const h = Math.max(1, rect.height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(w, h, false);
+    labelRenderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    needsRender = true;
+    if (frameDirty){ frameModel(); frameDirty = false; }
+  };
+
+  if ('ResizeObserver' in window){
+    new ResizeObserver(resize).observe(viewport);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  bindCanvasPicking();
+  animate();
+  return true;
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  if (!renderer) return;
+  if (!clock) clock = new THREE.Clock();
+  const dt = Math.min(clock.getDelta(), .05);
+  controls.update();
+  updateInteractives(dt);
+  if (rebuildDirty){
+    rebuildDirty = false;
+    rebuildScene();
+  }
+  if (needsRender){
+    renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
+    needsRender = false;
+    if (!firstRenderDone && furnitureGroup){
+      firstRenderDone = true;
+      setTimeout(() => document.getElementById('viewport').classList.add('is-ready'), 100);
+    }
+  }
+}
+
+function frameModel(){
+  if (!camera || !controls) return;
+  const { w, h, d } = state.cfg.dims;
+  const vFov = camera.fov * Math.PI / 180;
+  const aspect = Math.max(camera.aspect || 1.4, .45);
+  const distV = (h * .63) / Math.tan(vFov / 2);
+  const distH = (Math.max(w, d * .92) * .63) / Math.tan(vFov / 2) / aspect;
+  const dist = Math.max(distV, distH, 250) * 1.08;
+  camera.position.set(dist * .58, h * .68 + dist * .26, dist * .82);
+  controls.target.set(0, h * .45, 0);
+  controls.minDistance = Math.max(120, dist * .38);
+  controls.maxDistance = dist * 2.9;
+  controls.update();
+  needsRender = true;
+}
+
+/* ---------- material & tekstur ---------- */
+
+function shade(hex, amount){
+  const c = new THREE.Color(hex);
+  c.offsetHSL(0, 0, amount);
+  return '#' + c.getHexString();
+}
+
+function getWoodTexture(key, hex){
+  if (texCache.has(key)) return texCache.get(key);
+  const size = 512;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d');
+  g.fillStyle = hex;
+  g.fillRect(0, 0, size, size);
+
+  const dark = shade(hex, -.09);
+  const darker = shade(hex, -.16);
+  const light = shade(hex, .07);
+
+  for (let i = 0; i < 190; i++){
+    const x = Math.random() * size;
+    const wobble = 6 + Math.random() * 26;
+    g.beginPath();
+    g.moveTo(x, -20);
+    g.bezierCurveTo(x + wobble, size * .33, x - wobble, size * .66, x + wobble * .35, size + 20);
+    g.strokeStyle = Math.random() > .55 ? dark : light;
+    g.globalAlpha = .035 + Math.random() * .075;
+    g.lineWidth = .6 + Math.random() * 2.2;
+    g.stroke();
+  }
+
+  for (let i = 0; i < 55; i++){
+    const y = Math.random() * size;
+    g.beginPath();
+    g.moveTo(-10, y);
+    g.bezierCurveTo(size * .3, y + 8, size * .7, y - 8, size + 10, y + 2);
+    g.strokeStyle = darker;
+    g.globalAlpha = .025 + Math.random() * .035;
+    g.lineWidth = 1 + Math.random() * 1.4;
+    g.stroke();
+  }
+
+  g.globalAlpha = 1;
+  for (let i = 0; i < 1600; i++){
+    g.fillStyle = Math.random() > .5 ? dark : light;
+    g.globalAlpha = .018 + Math.random() * .022;
+    g.fillRect(Math.random() * size, Math.random() * size, 1.5, 1.5);
+  }
+  g.globalAlpha = 1;
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.MirroredRepeatWrapping;
+  tex.repeat.set(1.15, 1.15);
+  tex.anisotropy = 4;
+  texCache.set(key, tex);
+  return tex;
+}
+
+function getMaterial(key, finish){
+  const cacheKey = key + '|' + finish;
+  if (matCache.has(cacheKey)) return matCache.get(cacheKey);
+
+  const def = MATERIALS[key] || MATERIALS.oak;
+  let rough = def.rough;
+  if (finish === 'matte') rough = clamp(rough + .18, .35, .98);
+  if (finish === 'gloss') rough = clamp(rough - .28, .08, .9);
+
+  const params = {
+    color:def.kind === 'wood' ? new THREE.Color(0xffffff) : new THREE.Color(def.hex),
+    roughness:rough,
+    metalness:def.metalness || 0
+  };
+  if (def.kind === 'wood') params.map = getWoodTexture(key, def.hex);
+
+  const mat = new THREE.MeshStandardMaterial(params);
+  mat.envMapIntensity = def.kind === 'metal' ? 1.15 : .18;
+  matCache.set(cacheKey, mat);
+  return mat;
+}
+
+/* ---------- primitives ---------- */
+
+function box(w, h, d, mat, x, y, z, part){
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(Math.max(w, .1), Math.max(h, .1), Math.max(d, .1)), mat);
+  mesh.position.set(x, y, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  if (part) mesh.userData.part = part;
+  return mesh;
+}
+
+function cylinder(radius, height, mat, x, y, z, part, segments = 24){
+  const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, segments), mat);
+  mesh.position.set(x, y, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  if (part) mesh.userData.part = part;
+  return mesh;
+}
+
+function addMesh(parent, mesh, component){
+  if (component) mesh.userData.component = component;
+  parent.add(mesh);
+  return mesh;
+}
+
+function createDoorGroup(cfg, opt){
+  const { component, x, y, zFront, width, height, style, mat, hingeRight } = opt;
+  const group = new THREE.Group();
+  const dir = hingeRight ? -1 : 1;
+  const cx = dir * width / 2;
+  const t = 2;
+
+  group.position.set(hingeRight ? x + width / 2 : x - width / 2, y, zFront);
+  const add = mesh => addMesh(group, mesh, component);
+
+  if (style === 'solid'){
+    add(box(width, height, t, mat, cx, 0, -t / 2, 'doors'));
+  } else {
+    const fw = Math.min(6, Math.max(3.4, width * .17));
+    add(box(fw, height, t, mat, cx - width / 2 + fw / 2, 0, -t / 2, 'doors'));
+    add(box(fw, height, t, mat, cx + width / 2 - fw / 2, 0, -t / 2, 'doors'));
+    const innerW = width - fw * 2;
+    add(box(innerW, fw, t, mat, cx, height / 2 - fw / 2, -t / 2, 'doors'));
+    add(box(innerW, fw, t, mat, cx, -height / 2 + fw / 2, -t / 2, 'doors'));
+    const innerH = height - fw * 2;
+    if (style === 'glass'){
+      add(box(innerW - .8, innerH - .8, .7, glassMat, cx, 0, -t / 2 - .25, 'doors'));
+    } else {
+      add(box(innerW - 1, innerH - 1, 1.1, mat, cx, 0, -t / 2 - .45, 'doors'));
+    }
+  }
+
+  const hx = cx + dir * (width / 2 - 5.2);
+  add(box(1.5, clamp(height * .32, 12, 20), 1.7, getMaterial(cfg.mats.handle, cfg.finish), hx, 0, .85, 'handle'));
+
+  registerInteractive(component, {
+    type:'door',
+    group,
+    openRot:hingeRight ? 1.36 : -1.36,
+    label:'Pintu',
+    sizeText:`${roundCm(width)} × ${roundCm(height)} × 2 cm`
+  });
+  return group;
+}
+
+function createDrawerGroup(cfg, opt){
+  const { component, x, y, frontZ, width, height } = opt;
+  const group = new THREE.Group();
+  const t = 2;
+  const matFront = getMaterial(cfg.mats.doors, cfg.finish);
+  const matBody = getMaterial(cfg.mats.body, cfg.finish);
+  const matHandle = getMaterial(cfg.mats.handle, cfg.finish);
+
+  group.position.set(x, y, frontZ);
+  addMesh(group, box(width, height, t, matFront, 0, 0, -t / 2, 'doors'), component);
+  addMesh(group, box(Math.min(18, width * .4), 1.5, 1.7, matHandle, 0, 0, .85, 'handle'), component);
+
+  const boxDepth = Math.min(cfg.dims.d - 6, 46);
+  const innerW = Math.max(10, width - 5);
+  const innerH = Math.max(6, height - 4);
+  const zc = -t - boxDepth / 2;
+  addMesh(group, box(innerW, 1.3, boxDepth, matBody, 0, -innerH / 2, zc, 'body'), component);
+  addMesh(group, box(1.2, innerH, boxDepth, matBody, -innerW / 2 + .6, 0, zc, 'body'), component);
+  addMesh(group, box(1.2, innerH, boxDepth, matBody, innerW / 2 - .6, 0, zc, 'body'), component);
+  addMesh(group, box(innerW, innerH, 1.2, matBody, 0, 0, -t - boxDepth + .6, 'body'), component);
+
+  registerInteractive(component, {
+    type:'drawer',
+    group,
+    baseZ:frontZ,
+    extension:clamp(cfg.dims.d * .62, 22, 38),
+    label:'Laci',
+    sizeText:`${roundCm(width)} × ${roundCm(height)} × ${roundCm(boxDepth + 2)} cm`
+  });
+  return group;
+}
+
+/* ---------- interaksi buka/tutup ---------- */
+
+function applyInteractive(it){
+  if (it.type === 'door') it.group.rotation.y = it.openRot * it.t;
+  else it.group.position.z = it.baseZ + it.extension * it.t;
+}
+
+function registerInteractive(component, data){
+  const key = `${state.modelId}|${component}`;
+  data.key = key;
+  data.component = component;
+  data.open = openKeys.has(key);
+  data.t = data.open ? 1 : 0;
+  interactives.set(component, data);
+  applyInteractive(data);
+}
+
+function updateInteractives(dt){
+  let moving = false;
+  let changed = false;
+  for (const it of interactives.values()){
+    const target = it.open ? 1 : 0;
+    if (Math.abs(target - it.t) < .001) continue;
+    it.t += (target - it.t) * Math.min(1, dt * 9);
+    if (Math.abs(target - it.t) < .002) it.t = target;
+    else moving = true;
+    changed = true;
+    applyInteractive(it);
+  }
+  if (moving || changed) needsRender = true;
+}
+
+function showInteractionInfo(component, it){
+  clearSelection(false);
+  const info = document.getElementById('selectionInfo');
+  const name = document.getElementById('selectionName');
+  const dims = document.getElementById('selectionDims');
+  const parts = component.split('-');
+  const index = Number(parts[1]);
+  const label = Number.isFinite(index) ? `${it.label} ${index + 1}` : it.label;
+  if (name) name.textContent = `${label} · ${it.open ? 'dibuka' : 'ditutup'}`;
+  if (dims) dims.textContent = it.sizeText;
+  if (info) info.classList.add('is-on');
+}
+
+function toggleInteractive(component){
+  const it = interactives.get(component);
+  if (!it) return false;
+  it.open = !it.open;
+  if (it.open) openKeys.add(it.key);
+  else openKeys.delete(it.key);
+  needsRender = true;
+  updateOpenButton();
+  showInteractionInfo(component, it);
+  return true;
+}
+
+function updateOpenButton(){
+  const btn = document.getElementById('btnOpen');
+  if (!btn) return;
+  const items = [...interactives.values()];
+  btn.hidden = items.length === 0;
+  if (!items.length) return;
+  const anyClosed = items.some(it => !it.open);
+  const span = btn.querySelector('span');
+  if (span) span.textContent = anyClosed ? 'Buka semua' : 'Tutup semua';
+  const action = anyClosed ? 'Buka semua pintu dan laci' : 'Tutup semua pintu dan laci';
+  btn.setAttribute('aria-pressed', String(!anyClosed));
+  btn.setAttribute('aria-label', action);
+  btn.title = action;
+}
+
+function toggleAllOpenings(){
+  if (!interactives.size) return;
+  const anyClosed = [...interactives.values()].some(it => !it.open);
+  for (const it of interactives.values()){
+    it.open = anyClosed;
+    if (it.open) openKeys.add(it.key);
+    else openKeys.delete(it.key);
+  }
+  needsRender = true;
+  updateOpenButton();
+  toast(anyClosed ? 'Semua pintu dan laci dibuka.' : 'Semua pintu dan laci ditutup.');
+}
+
+function closeAllOpenings(instant = false){
+  for (const it of interactives.values()){
+    it.open = false;
+    openKeys.delete(it.key);
+    if (instant){
+      it.t = 0;
+      applyInteractive(it);
+    }
+  }
+  needsRender = true;
+  updateOpenButton();
+}
+
+/* ---------- builders ---------- */
+
+function buildMeja(cfg){
+  const g = new THREE.Group();
+  const { w, h, d } = cfg.dims;
+  const topT = cfg.comps.topThickness;
+  const matTop = getMaterial(cfg.mats.top, cfg.finish);
+  const matLegs = getMaterial(cfg.mats.legs, cfg.finish);
+
+  g.add(box(w, topT, d, matTop, 0, h - topT / 2, 0, 'top'));
+
+  const apronH = 8;
+  const inset = 8;
+  const apronY = h - topT - apronH / 2;
+  g.add(box(w - inset * 2, apronH, 3, matLegs, 0, apronY, d / 2 - inset / 2, 'legs'));
+  g.add(box(w - inset * 2, apronH, 3, matLegs, 0, apronY, -d / 2 + inset / 2, 'legs'));
+  g.add(box(3, apronH, d - inset * 2, matLegs, w / 2 - inset / 2, apronY, 0, 'legs'));
+  g.add(box(3, apronH, d - inset * 2, matLegs, -w / 2 + inset / 2, apronY, 0, 'legs'));
+
+  const legH = h - topT;
+  const style = cfg.comps.legStyle;
+  const insetX = style === 'ramping' ? 6 : 7.5;
+  const insetZ = style === 'ramping' ? 6 : 7.5;
+  const legPositions = [
+    [-w / 2 + insetX, -d / 2 + insetZ],
+    [w / 2 - insetX, -d / 2 + insetZ],
+    [-w / 2 + insetX, d / 2 - insetZ],
+    [w / 2 - insetX, d / 2 - insetZ]
+  ];
+  if (w >= 200) legPositions.push([0, -d / 2 + insetZ], [0, d / 2 - insetZ]);
+
+  for (const [x, z] of legPositions){
+    if (style === 'bulat'){
+      g.add(cylinder(3.4, legH, matLegs, x, legH / 2, z, 'legs'));
+    } else {
+      const size = style === 'ramping' ? 4.8 : 7.6;
+      g.add(box(size, legH, size, matLegs, x, legH / 2, z, 'legs'));
+    }
+  }
+
+  return g;
+}
+
+function buildArun(cfg){
+  const g = new THREE.Group();
+  const { w, h, d } = cfg.dims;
+  const { plinth, side, top, back, drawer, door, gap } = ARUN;
+  const matBody = getMaterial(cfg.mats.body, cfg.finish);
+  const matDoors = getMaterial(cfg.mats.doors, cfg.finish);
+  const matLegs = getMaterial(cfg.mats.legs, cfg.finish);
+  const bodyH = h - plinth;
+  const innerW = w - side * 2;
+
+  g.add(box(w - 3, plinth, d - 8, matLegs, 0, plinth / 2, .8, 'legs'));
+
+  g.add(box(side, bodyH, d, matBody, -w / 2 + side / 2, plinth + bodyH / 2, 0, 'body'));
+  g.add(box(side, bodyH, d, matBody, w / 2 - side / 2, plinth + bodyH / 2, 0, 'body'));
+  g.add(box(w, top, d, matBody, 0, h - top / 2, 0, 'body'));
+  g.add(box(w, top, d, matBody, 0, plinth + top / 2, 0, 'body'));
+  g.add(box(innerW, bodyH - top * 2, back, matBody, 0, plinth + bodyH / 2, -d / 2 + back / 2, 'body'));
+
+  const bankH = cfg.comps.drawers * drawer;
+  const zoneBottom = plinth + top + bankH;
+  const zoneTop = h - top;
+  const zoneH = zoneTop - zoneBottom;
+  const n = cfg.comps.doors;
+
+  for (let i = 1; i < n; i++){
+    const x = -w / 2 + (w / n) * i;
+    g.add(box(2, zoneH, d - 5, matBody, x, zoneBottom + zoneH / 2, 0, 'body'));
+  }
+
+  for (let i = 1; i <= cfg.comps.shelves; i++){
+    const y = zoneBottom + zoneH * (i / (cfg.comps.shelves + 1));
+    addMesh(g, box(innerW - 2, 2, d - 5.5, matBody, 0, y, 0, 'body'), `shelf-${i}`);
+  }
+
+  for (let i = 0; i < cfg.comps.drawers; i++){
+    const cy = plinth + top + drawer * i + drawer / 2;
+    g.add(createDrawerGroup(cfg, {
+      component:`drawer-${i}`, x:0, y:cy, frontZ:d / 2 + .8,
+      width:w - 4, height:drawer - 1.3
+    }));
+  }
+
+  const doorW = (w - gap * 2) / n;
+  const doorH = zoneH - gap * 2;
+  for (let i = 0; i < n; i++){
+    const cx = -w / 2 + gap + doorW * (i + .5);
+    const cy = zoneBottom + zoneH / 2;
+    const handleAtRight = i !== n - 1;
+    g.add(createDoorGroup(cfg, {
+      component:`door-${i}`, x:cx, y:cy, zFront:d / 2 + .8,
+      width:doorW, height:doorH, style:cfg.comps.doorStyle,
+      mat:matDoors, hingeRight:!handleAtRight
+    }));
+  }
+
+  return g;
+}
+
+function buildBima(cfg){
+  const g = new THREE.Group();
+  const { w, h, d } = cfg.dims;
+  const { plinth, side, top, back, drawer, door, gap } = BIMA;
+  const zones = bimaZones(cfg);
+  const matBody = getMaterial(cfg.mats.body, cfg.finish);
+  const matDoors = getMaterial(cfg.mats.doors, cfg.finish);
+  const matLegs = getMaterial(cfg.mats.legs, cfg.finish);
+  const bodyH = h - plinth;
+  const innerW = w - side * 2;
+
+  g.add(box(w - 3, plinth, d - 8, matLegs, 0, plinth / 2, .8, 'legs'));
+  g.add(box(side, bodyH, d, matBody, -w / 2 + side / 2, plinth + bodyH / 2, 0, 'body'));
+  g.add(box(side, bodyH, d, matBody, w / 2 - side / 2, plinth + bodyH / 2, 0, 'body'));
+  g.add(box(w, top, d, matBody, 0, h - top / 2, 0, 'body'));
+  g.add(box(w, top, d, matBody, 0, plinth + top / 2, 0, 'body'));
+  g.add(box(innerW, bodyH - top * 2, back, matBody, 0, plinth + bodyH / 2, -d / 2 + back / 2, 'body'));
+
+  const zoneBottom = plinth + top;
+  const zoneTop = h - top;
+  const zoneH = zoneTop - zoneBottom;
+  const doorZoneW = zones.doorW;
+  const doorCenterX = -w / 2 + doorZoneW / 2;
+  const rightCenterX = -w / 2 + doorZoneW + zones.rightW / 2;
+  const n = cfg.comps.doors;
+
+  if (zones.rightW > 0){
+    g.add(box(2, zoneH, d - 5, matBody, -w / 2 + doorZoneW, zoneBottom + zoneH / 2, 0, 'body'));
+  }
+
+  for (let i = 1; i <= cfg.comps.shelves; i++){
+    const y = zoneBottom + zoneH * (i / (cfg.comps.shelves + 1));
+    addMesh(g, box(doorZoneW - side * 2 - 2, 2, d - 5.5, matBody, doorCenterX, y, 0, 'body'), `shelf-${i}`);
+  }
+
+  const doorW = (doorZoneW - gap * 2) / n;
+  const doorH = zoneH - gap * 2;
+  for (let i = 0; i < n; i++){
+    const cx = -w / 2 + gap + doorW * (i + .5);
+    const handleAtRight = i !== n - 1;
+    g.add(createDoorGroup(cfg, {
+      component:`door-${i}`, x:cx, y:zoneBottom + zoneH / 2, zFront:d / 2 + .8,
+      width:doorW, height:doorH, style:cfg.comps.doorStyle,
+      mat:matDoors, hingeRight:!handleAtRight
+    }));
+  }
+
+  if (cfg.comps.drawers > 0){
+    const bankH = cfg.comps.drawers * drawer;
+    for (let i = 0; i < cfg.comps.drawers; i++){
+      const cy = zoneBottom + drawer * i + drawer / 2;
+      g.add(createDrawerGroup(cfg, {
+        component:`drawer-${i}`, x:rightCenterX, y:cy, frontZ:d / 2 + .8,
+        width:zones.rightW - 4, height:drawer - 1.2
+      }));
+    }
+    if (zoneH > bankH + 9){
+      g.add(box(zones.rightW - side * 2, 2, d - 5.5, matBody, rightCenterX, zoneBottom + bankH + 1.4, 0, 'body'));
+    }
+  } else if (cfg.comps.open){
+    g.add(box(zones.rightW - side * 2, 2, d - 5.5, matBody, rightCenterX, zoneBottom + zoneH * .54, 0, 'body'));
+    const hole = new THREE.Mesh(
+      new THREE.CircleGeometry(3, 20),
+      new THREE.MeshBasicMaterial({ color:0x1b1a17 })
+    );
+    hole.position.set(rightCenterX, zoneBottom + zoneH * .34, -d / 2 + back + .15);
+    g.add(hole);
+  }
+
+  return g;
+}
+
+const BUILDERS = { meja:buildMeja, arun:buildArun, bima:buildBima };
+
+/* ---------- scene rebuild, ukur, seleksi ---------- */
+
+function requestRebuild(){
+  rebuildDirty = true;
+  needsRender = true;
+}
+
+function rebuildScene(){
+  if (!scene) return;
+  clearSelection();
+
+  if (furnitureGroup){
+    scene.remove(furnitureGroup);
+    disposeGroup(furnitureGroup);
+    furnitureGroup = null;
+  }
+
+  interactives.clear();
+  furnitureGroup = BUILDERS[state.modelId](state.cfg);
+  scene.add(furnitureGroup);
+
+  const { w, h, d } = state.cfg.dims;
+  if (shadowBlob){
+    const r = Math.max(w, d) * .86 + 20;
+    shadowBlob.scale.set(r, r, 1);
+  }
+
+  if (measureOn) rebuildMeasurements();
+  updateOpenButton();
+  needsRender = true;
+}
+
+function makeMeasureLabel(text, x, y, z){
+  const el = document.createElement('div');
+  el.className = 'measure-label';
+  el.textContent = text;
+  const label = new CSS2DObject(el);
+  label.position.set(x, y, z);
+  label.center.set(.5, .5);
+  measureGroup.add(label);
+}
+
+function makeMeasureLine(points, mat){
+  const geo = new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(...p)));
+  const line = new THREE.Line(geo, mat);
+  measureGroup.add(line);
+}
+
+function rebuildMeasurements(){
+  clearMeasurements();
+  if (!scene || !state.cfg) return;
+
+  const { w, h, d } = state.cfg.dims;
+  const off = 18;
+  const y = .7;
+  const mat = new THREE.LineBasicMaterial({ color:0x8b8172, transparent:true, opacity:.8 });
+
+  measureGroup = new THREE.Group();
+  measureGroup.name = 'measurements';
+  scene.add(measureGroup);
+
+  makeMeasureLine([
+    [-w / 2, y, d / 2 + off],
+    [w / 2, y, d / 2 + off]
+  ], mat);
+  makeMeasureLine([
+    [w / 2 + off, y, d / 2 + off],
+    [w / 2 + off, h, d / 2 + off]
+  ], mat);
+  makeMeasureLine([
+    [-w / 2 - off, y, -d / 2],
+    [-w / 2 - off, y, d / 2]
+  ], mat);
+
+  const tick = 5;
+  const ticks = [
+    [[-w / 2, y - tick, d / 2 + off], [-w / 2, y + tick, d / 2 + off]],
+    [[w / 2, y - tick, d / 2 + off], [w / 2, y + tick, d / 2 + off]],
+    [[w / 2 + off, y - tick, d / 2 + off], [w / 2 + off, y + tick, d / 2 + off]],
+    [[w / 2 + off, h - tick, d / 2 + off], [w / 2 + off, h + tick, d / 2 + off]],
+    [[-w / 2 - off - tick, y, -d / 2], [-w / 2 - off + tick, y, -d / 2]],
+    [[-w / 2 - off - tick, y, d / 2], [-w / 2 - off + tick, y, d / 2]]
+  ];
+  for (const seg of ticks) makeMeasureLine(seg, mat);
+
+  makeMeasureLabel(`${roundCm(w)} cm`, 0, y, d / 2 + off + 6);
+  makeMeasureLabel(`${roundCm(h)} cm`, w / 2 + off + 6, h / 2, d / 2 + off);
+  makeMeasureLabel(`${roundCm(d)} cm`, -w / 2 - off - 6, y, 0);
+
+  needsRender = true;
+}
+
+function clearMeasurements(){
+  if (!measureGroup) return;
+  scene.remove(measureGroup);
+  disposeGroup(measureGroup);
+  measureGroup = null;
+}
+
+function setMeasure(on){
+  measureOn = on;
+  const btn = document.getElementById('btnMeasure');
+  if (btn) btn.setAttribute('aria-pressed', String(on));
+  if (on){
+    rebuildMeasurements();
+  } else {
+    clearMeasurements();
+    needsRender = true;
+  }
+}
+
+function clearSelection(hideInfo = true){
+  selectedPart = null;
+  for (const mesh of selectedMeshes){
+    if (mesh.userData.__origMat){
+      if (mesh.material !== mesh.userData.__origMat) mesh.material.dispose();
+      mesh.material = mesh.userData.__origMat;
+      delete mesh.userData.__origMat;
+    }
+  }
+  selectedMeshes = [];
+  if (hideInfo){
+    const info = document.getElementById('selectionInfo');
+    if (info) info.classList.remove('is-on');
+    document.querySelectorAll('.part-block.is-focused').forEach(el => el.classList.remove('is-focused'));
+  }
+  needsRender = true;
+}
+
+function selectPart(part, component = null){
+  if (!furnitureGroup || !scene) return;
+  clearSelection(false);
+
+  const meshes = [];
+  furnitureGroup.traverse(obj => {
+    if (!obj.isMesh || obj.userData.part !== part) return;
+    if (component && obj.userData.component !== component) return;
+    meshes.push(obj);
+  });
+  if (!meshes.length) return;
+
+  const union = new THREE.Box3();
+  for (const mesh of meshes){
+    mesh.updateWorldMatrix(true, false);
+    union.union(new THREE.Box3().setFromObject(mesh));
+  }
+  const size = union.getSize(new THREE.Vector3());
+
+  selectedPart = part;
+
+  for (const mesh of meshes){
+    if (!mesh.userData.__origMat){
+      mesh.userData.__origMat = mesh.material;
+      const highlightMat = mesh.material.clone();
+      highlightMat.emissive = new THREE.Color(0xb07a48);
+      highlightMat.emissiveIntensity = .3;
+      mesh.material = highlightMat;
+      selectedMeshes.push(mesh);
+    }
+  }
+  const info = document.getElementById('selectionInfo');
+  const name = document.getElementById('selectionName');
+  const dims = document.getElementById('selectionDims');
+  let label = PART_LABELS[part] || part;
+  if (part === 'handle') label = 'Gagang';
+  else if (component && component.startsWith('door-')) label = 'Pintu';
+  else if (component && component.startsWith('drawer-')) label = 'Laci';
+  else if (component && component.startsWith('shelf-')) label = 'Rak';
+  if (name) name.textContent = label;
+  if (dims) dims.textContent = `${roundCm(size.x)} × ${roundCm(size.y)} × ${roundCm(size.z)} cm`;
+  if (info) info.classList.add('is-on');
+
+  document.querySelectorAll('.part-block.is-focused').forEach(el => el.classList.remove('is-focused'));
+  const block = document.querySelector(`[data-part-block="${part}"]`);
+  if (block){
+    block.classList.add('is-focused');
+    block.scrollIntoView({ block:'nearest', behavior:'smooth' });
+  }
+  needsRender = true;
+}
+
+function pickMeshAt(clientX, clientY){
+  if (!renderer || !scene || !furnitureGroup) return null;
+  const rect = renderer.domElement.getBoundingClientRect();
+  const ndc = new THREE.Vector2(
+    ((clientX - rect.left) / rect.width) * 2 - 1,
+    -((clientY - rect.top) / rect.height) * 2 + 1
+  );
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(ndc, camera);
+  const hits = raycaster.intersectObjects(furnitureGroup.children, true);
+  return hits.find(h => h.object.isMesh && h.object.userData.part) || null;
+}
+
+function bindCanvasPicking(){
+  if (!renderer) return;
+  const el = renderer.domElement;
+  let down = null;
+  let hoverFrame = 0;
+  let hoverPoint = null;
+
+  el.addEventListener('pointerdown', e => {
+    down = { x:e.clientX, y:e.clientY };
+  });
+
+  el.addEventListener('pointerup', e => {
+    if (!down) return;
+    const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
+    down = null;
+    if (moved > 6) return;
+
+    const hit = pickMeshAt(e.clientX, e.clientY);
+    if (hit){
+      const component = hit.object.userData.component;
+      if (component && interactives.has(component)){
+        toggleInteractive(component);
+        return;
+      }
+      selectPart(hit.object.userData.part, component || null);
+    } else {
+      clearSelection();
+    }
+  });
+
+  el.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
+    hoverPoint = { x:e.clientX, y:e.clientY };
+    if (hoverFrame) return;
+    hoverFrame = requestAnimationFrame(() => {
+      hoverFrame = 0;
+      if (!hoverPoint) return;
+      const hit = pickMeshAt(hoverPoint.x, hoverPoint.y);
+      const interactive = !!(hit && hit.object.userData.component && interactives.has(hit.object.userData.component));
+      el.style.cursor = interactive ? 'pointer' : 'grab';
+    });
+  });
+
+  el.addEventListener('pointerleave', () => {
+    hoverPoint = null;
+    el.style.cursor = 'grab';
+  });
+}
+
+function captureSnapshot(){
+  if (!renderer || !scene) return null;
+  try {
+    if (rebuildDirty){ rebuildDirty = false; rebuildScene(); }
+    renderer.render(scene, camera);
+    return renderer.domElement.toDataURL('image/png');
+  } catch (err){
+    console.warn('[Ruang Kayu] Snapshot gagal:', err);
+    return null;
+  }
+}
+
+/* ============================================================
+   3. Panel pengaturan, ringkasan, riwayat, tautan
+   ============================================================ */
+
+const els = {
+  viewport: document.getElementById('viewport'),
+  modelTabs: document.getElementById('modelTabs'),
+  productHead: document.getElementById('productHead'),
+  controls: document.getElementById('controls'),
+  ruleNotice: document.getElementById('ruleNotice'),
+  summary: document.getElementById('summary'),
+  panel: document.getElementById('panel'),
+  panelScroll: document.getElementById('panelScroll'),
+  sheetHandle: document.getElementById('sheetHandle'),
+  quoteModal: document.getElementById('quoteModal'),
+  resetModal: document.getElementById('resetModal'),
+  toast: document.getElementById('toast')
+};
+
+const msgTimers = {};
+let noticeTimer = null;
+let toastTimer = null;
+let urlTimer = null;
+let historyTimer = null;
+let history = [];
+let historyIndex = -1;
+
+function isLight(hex){
+  const c = new THREE.Color(hex);
+  return (.2126 * c.r + .7152 * c.g + .0722 * c.b) > .62;
+}
+
+function toast(message){
+  if (!els.toast) return;
+  els.toast.textContent = message;
+  els.toast.classList.add('is-on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => els.toast.classList.remove('is-on'), 3400);
+}
+
+function updateTabs(){
+  els.modelTabs.querySelectorAll('[data-model]').forEach(btn => {
+    const active = btn.dataset.model === state.modelId;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-selected', String(active));
+    btn.tabIndex = active ? 0 : -1;
+  });
+}
+
+function renderProductHead(){
+  const m = MODELS[state.modelId];
+  els.productHead.innerHTML = `
+    <span class="tier">${m.tier} · konfigurator 3D</span>
+    <h1>${m.name}</h1>
+    <p>${m.tagline}</p>
+    <p class="head-meta">Lebar ${m.dims.w.min}–${m.dims.w.max} cm · tinggi ${m.dims.h.min}–${m.dims.h.max} cm</p>
+    <div class="head-rule"></div>`;
+}
+
+function dimField(key){
+  const spec = MODELS[state.modelId].dims[key];
+  const value = state.cfg.dims[key];
+  return `
+    <div class="field" data-field="${key}">
+      <div class="field-top">
+        <label for="range-${key}">${spec.label}</label>
+        <div class="num-wrap">
+          <input id="num-${key}" data-dim="${key}" type="number" min="${spec.min}" max="${spec.max}" step="${spec.step}" value="${value}" inputmode="numeric" aria-label="${spec.label} dalam sentimeter">
+          <span>cm</span>
+        </div>
+      </div>
+      <input class="range" id="range-${key}" data-dim="${key}" type="range" min="${spec.min}" max="${spec.max}" step="${spec.step}" value="${value}" aria-label="${spec.label}">
+      <div class="field-foot">
+        <span>${spec.min}</span>
+        <span class="field-msg" data-msg="${key}" role="status"></span>
+        <span>${spec.max}</span>
+      </div>
+    </div>`;
+}
+
+function partBlock(part){
+  return `
+    <div class="part-block" data-part-block="${part.id}">
+      <div class="part-head">
+        <span>${part.label}</span>
+        <span class="part-current" data-part-name="${part.id}"></span>
+      </div>
+      <div class="chips" role="group" aria-label="Material ${part.label}">
+        ${part.options.map(id => {
+          const mat = MATERIALS[id];
+          return `<button type="button" class="chip" data-mat="${id}" data-part="${part.id}" style="--c:${mat.hex}" data-light="${isLight(mat.hex)}" aria-label="${mat.name}" aria-pressed="false" title="${mat.name}"></button>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function compMarkup(c){
+  if (c.type === 'stepper'){
+    return `
+      <div class="comp-row">
+        <div class="comp-head">
+          <div>
+            <span class="comp-label">${c.label}</span>
+            <p class="comp-hint" data-comp-hint="${c.id}"></p>
+          </div>
+          <div class="stepper" data-comp="${c.id}">
+            <button type="button" data-step="-1" aria-label="Kurangi ${c.label.toLowerCase()}">−</button>
+            <output data-comp-value="${c.id}">0</output>
+            <button type="button" data-step="1" aria-label="Tambah ${c.label.toLowerCase()}">+</button>
+          </div>
+        </div>
+      </div>`;
+  }
+  if (c.type === 'choice'){
+    return `
+      <div class="comp-row">
+        <span class="comp-label">${c.label}</span>
+        <div class="segmented" style="margin-top:7px" data-choice="${c.id}" role="group" aria-label="${c.label}">
+          ${c.options.map(o => `<button type="button" data-choice-value="${o.value}" aria-pressed="false">${o.label}</button>`).join('')}
+        </div>
+        <p class="comp-hint" data-choice-hint="${c.id}"></p>
+      </div>`;
+  }
+  if (c.type === 'toggle'){
+    return `
+      <div class="comp-row">
+        <div class="comp-head">
+          <div>
+            <span class="comp-label">${c.label}</span>
+            <p class="comp-hint" data-comp-hint="${c.id}"></p>
+          </div>
+          <button class="switch" type="button" data-toggle="${c.id}" role="switch" aria-checked="false" aria-label="${c.label}"><span></span></button>
+        </div>
+      </div>`;
+  }
+  return '';
+}
+
+function renderControls(){
+  const m = MODELS[state.modelId];
+  els.controls.innerHTML = `
+    <details class="group" open>
+      <summary class="group-head">
+        <span>Ukuran</span>
+        <span class="group-meta" id="dimsMeta"></span>
+      </summary>
+      <div class="group-body">
+        ${['w', 'h', 'd'].map(dimField).join('')}
+        <p class="micro-note">Semua ukuran dalam sentimeter.</p>
+      </div>
+    </details>
+
+    <details class="group" open>
+      <summary class="group-head">
+        <span>Material &amp; warna</span>
+        <span class="group-meta">${m.parts.length} bagian</span>
+      </summary>
+      <div class="group-body">
+        ${m.parts.map(partBlock).join('')}
+        <div class="finish-row">
+          <div class="part-head">
+            <span>Finishing</span>
+            <span class="part-current" id="finishName"></span>
+          </div>
+          <div class="segmented" data-finish-group role="group" aria-label="Finishing">
+            ${FINISHES.map(f => `<button type="button" data-finish="${f.id}" aria-pressed="false">${f.name}</button>`).join('')}
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="group" open>
+      <summary class="group-head">
+        <span>Komponen</span>
+        <span class="group-meta" id="compMeta"></span>
+      </summary>
+      <div class="group-body">
+        ${m.components.map(compMarkup).join('')}
+      </div>
+    </details>`;
+}
+
+function syncDimFields(){
+  for (const key of ['w', 'h', 'd']){
+    const spec = MODELS[state.modelId].dims[key];
+    const value = state.cfg.dims[key];
+    const range = document.getElementById('range-' + key);
+    const num = document.getElementById('num-' + key);
+    if (range){
+      range.value = value;
+      const pct = ((value - spec.min) / (spec.max - spec.min)) * 100;
+      range.style.setProperty('--fill', pct + '%');
+    }
+    if (num && document.activeElement !== num) num.value = value;
+  }
+  const meta = document.getElementById('dimsMeta');
+  if (meta){
+    const { w, h, d } = state.cfg.dims;
+    meta.textContent = `${w} × ${h} × ${d} cm`;
+  }
+}
+
+function syncPanel(){
+  const m = MODELS[state.modelId];
+  const cfg = state.cfg;
+  const lim = state.limits;
+
+  syncDimFields();
+
+  for (const part of m.parts){
+    const mat = MATERIALS[cfg.mats[part.id]];
+    const nameEl = document.querySelector(`[data-part-name="${part.id}"]`);
+    if (nameEl && mat) nameEl.textContent = mat.name;
+    document.querySelectorAll(`[data-mat][data-part="${part.id}"]`).forEach(btn => {
+      const on = btn.dataset.mat === cfg.mats[part.id];
+      btn.classList.toggle('is-selected', on);
+      btn.setAttribute('aria-pressed', String(on));
+    });
+  }
+
+  const finishName = document.getElementById('finishName');
+  if (finishName){
+    const f = FINISHES.find(item => item.id === cfg.finish);
+    finishName.textContent = f ? f.name : cfg.finish;
+  }
+  document.querySelectorAll('[data-finish]').forEach(btn => {
+    const on = btn.dataset.finish === cfg.finish;
+    btn.classList.toggle('is-active', on);
+    btn.setAttribute('aria-pressed', String(on));
+  });
+
+  for (const comp of m.components){
+    if (comp.type === 'stepper'){
+      const value = cfg.comps[comp.id];
+      const limits = lim[comp.id] || { min:0, max:99 };
+      const output = document.querySelector(`[data-comp-value="${comp.id}"]`);
+      if (output) output.textContent = comp.unit ? `${value} ${comp.unit}` : String(value);
+      const row = document.querySelector(`[data-comp="${comp.id}"]`);
+      if (row){
+        const minus = row.querySelector('[data-step="-1"]');
+        const plus = row.querySelector('[data-step="1"]');
+        if (minus) minus.disabled = value <= limits.min;
+        if (plus) plus.disabled = value >= limits.max;
+      }
+      const hint = document.querySelector(`[data-comp-hint="${comp.id}"]`);
+      if (hint){
+        hint.textContent = comp.hint ? comp.hint(cfg, lim) : '';
+        hint.classList.toggle('is-blocked', limits.max === limits.min && limits.max === 0);
+      }
+    }
+
+    if (comp.type === 'choice'){
+      const reason = (lim.optionDisabled && lim.optionDisabled[comp.id]) || {};
+      document.querySelectorAll(`[data-choice="${comp.id}"] [data-choice-value]`).forEach(btn => {
+        const value = btn.dataset.choiceValue;
+        const on = value === cfg.comps[comp.id];
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-pressed', String(on));
+        const blocked = reason[value];
+        btn.disabled = !!blocked;
+        btn.title = blocked || '';
+      });
+      const hint = document.querySelector(`[data-choice-hint="${comp.id}"]`);
+      if (hint){
+        const blockedNote = reason.glass;
+        hint.textContent = blockedNote
+          ? `Opsi kaca dinonaktifkan: ${blockedNote}`
+          : (comp.hint ? comp.hint(cfg, lim) : '');
+        hint.classList.toggle('is-blocked', !!blockedNote);
+      }
+    }
+
+    if (comp.type === 'toggle'){
+      const btn = document.querySelector(`[data-toggle="${comp.id}"]`);
+      const limits = lim[comp.id] || { disabled:false, reason:'' };
+      if (btn){
+        btn.setAttribute('aria-checked', String(!!cfg.comps[comp.id]));
+        btn.disabled = !!limits.disabled;
+        btn.title = limits.reason || '';
+      }
+      const hint = document.querySelector(`[data-comp-hint="${comp.id}"]`);
+      if (hint){
+        hint.textContent = comp.hint ? comp.hint(cfg, lim) : '';
+        hint.classList.toggle('is-blocked', !!limits.disabled);
+      }
+    }
+  }
+
+  const compMeta = document.getElementById('compMeta');
+  if (compMeta) compMeta.textContent = compSummary(state.modelId, cfg);
+}
+
+function updateSummary(){
+  const m = MODELS[state.modelId];
+  const cfg = state.cfg;
+  const row = (dt, dd, cls = '') => `<div class="${cls}"><dt>${dt}</dt><dd>${dd}</dd></div>`;
+  const finish = FINISHES.find(f => f.id === cfg.finish);
+
+  const rows = [
+    row('Produk', `${m.name}<small>${m.tier}</small>`),
+    row('Ukuran', `${cfg.dims.w} × ${cfg.dims.h} × ${cfg.dims.d} cm`),
+    ...m.parts.map(part => row(part.label, MATERIALS[cfg.mats[part.id]].name)),
+    row('Finishing', finish ? finish.name : cfg.finish),
+    row('Komponen', compSummary(state.modelId, cfg), 'summary-comp')
+  ];
+
+  els.summary.innerHTML = `
+    <div class="summary-head">
+      <h2>Ringkasan</h2>
+      <span>Otomatis</span>
+    </div>
+    <dl>${rows.join('')}</dl>`;
+
+  const panelSpec = document.getElementById('panelSpec');
+  if (panelSpec){
+    panelSpec.innerHTML = `
+      <span>${cfg.dims.w} × ${cfg.dims.h} × ${cfg.dims.d} cm</span>
+      <span>${compSummary(state.modelId, cfg)}</span>`;
+  }
+}
+
+function showRuleNotice(notices){
+  if (!notices || !notices.length || !els.ruleNotice) return;
+  els.ruleNotice.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v.5M12 11v5"/></svg>
+    <span>${notices.join(' ')}</span>`;
+  els.ruleNotice.hidden = false;
+  clearTimeout(noticeTimer);
+  noticeTimer = setTimeout(() => { els.ruleNotice.hidden = true; }, 8000);
+}
+
+function hideRuleNotice(){
+  if (!els.ruleNotice) return;
+  els.ruleNotice.hidden = true;
+  clearTimeout(noticeTimer);
+}
+
+function setFieldMessage(key, message){
+  const msg = document.querySelector(`[data-msg="${key}"]`);
+  const wrap = document.querySelector(`[data-field="${key}"] .num-wrap`);
+  if (!msg) return;
+  msg.textContent = message;
+  if (wrap) wrap.classList.toggle('is-invalid', !!message);
+  clearTimeout(msgTimers[key]);
+  if (message){
+    msgTimers[key] = setTimeout(() => {
+      msg.textContent = '';
+      if (wrap) wrap.classList.remove('is-invalid');
+    }, 2600);
+  }
+}
+
+function updateDim(key, rawValue, fromRange){
+  const spec = MODELS[state.modelId].dims[key];
+  const value = Number(rawValue);
+  const num = document.getElementById('num-' + key);
+
+  if (!Number.isFinite(value)){
+    setFieldMessage(key, 'Masukkan angka');
+    if (num) num.value = state.cfg.dims[key];
+    return;
+  }
+
+  let next = value;
+  if (!fromRange){
+    next = Math.round((value - spec.min) / spec.step) * spec.step + spec.min;
+    next = clamp(next, spec.min, spec.max);
+    if (next !== value) setFieldMessage(key, `Dibulatkan ke ${next} cm`);
+  }
+
+  if (value < spec.min || value > spec.max){
+    setFieldMessage(key, `${spec.min}–${spec.max} cm`);
+    if (num) num.value = state.cfg.dims[key];
+    return;
+  }
+
+  setFieldMessage(key, '');
+  state.cfg.dims[key] = next;
+  applyChange(fromRange ? 'live' : 'commit');
+}
+
+function applyChange(mode){
+  const res = evaluate(state.modelId, state.cfg);
+  state.cfg = res.cfg;
+  state.limits = res.limits;
+  state.lastNotices = res.notices;
+
+  syncPanel();
+  updateSummary();
+  if (res.notices.length) showRuleNotice(res.notices);
+  requestRebuild();
+  scheduleUrl();
+
+  if (mode === 'live') scheduleHistory();
+  else pushHistory();
+}
+
+function changeComp(id, delta){
+  const limits = state.limits[id];
+  if (!limits) return;
+  const current = state.cfg.comps[id];
+  const next = clamp(current + delta, limits.min, limits.max);
+  if (next === current){
+    if (delta > 0 && current >= limits.max) toast('Sudah mencapai batas maksimum aturan produk.');
+    if (delta < 0 && current <= limits.min) toast('Sudah mencapai batas minimum aturan produk.');
+    return;
+  }
+  state.cfg.comps[id] = next;
+  applyChange('commit');
+}
+
+function setChoice(id, value){
+  const blocked = state.limits.optionDisabled && state.limits.optionDisabled[id];
+  if (blocked && blocked[value]){
+    toast(blocked[value]);
+    return;
+  }
+  state.cfg.comps[id] = value;
+  applyChange('commit');
+}
+
+function toggleComp(id){
+  const limits = state.limits[id];
+  if (limits && limits.disabled){
+    toast(limits.reason || 'Opsi ini tidak tersedia.');
+    return;
+  }
+  state.cfg.comps[id] = !state.cfg.comps[id];
+  applyChange('commit');
+}
+
+function setMaterial(partId, key){
+  if (!MATERIALS[key]) return;
+  state.cfg.mats[partId] = key;
+  applyChange('commit');
+}
+
+function setFinish(key){
+  if (!FINISHES.some(f => f.id === key)) return;
+  state.cfg.finish = key;
+  applyChange('commit');
+}
+
+/* ---------- riwayat ---------- */
+
+function snapshotJSON(){
+  return JSON.stringify({ modelId:state.modelId, cfg:state.cfg });
+}
+
+function updateHistoryButtons(){
+  const undoBtn = document.getElementById('btnUndo');
+  const redoBtn = document.getElementById('btnRedo');
+  if (undoBtn) undoBtn.disabled = historyIndex <= 0;
+  if (redoBtn) redoBtn.disabled = historyIndex >= history.length - 1;
+}
+
+function resetHistory(){
+  history = [snapshotJSON()];
+  historyIndex = 0;
+  updateHistoryButtons();
+}
+
+function pushHistory(){
+  clearTimeout(historyTimer);
+  historyTimer = null;
+  const snap = snapshotJSON();
+  if (history[historyIndex] === snap) return;
+  history = history.slice(0, historyIndex + 1);
+  history.push(snap);
+  if (history.length > 30) history.shift();
+  historyIndex = history.length - 1;
+  updateHistoryButtons();
+}
+
+function scheduleHistory(){
+  clearTimeout(historyTimer);
+  historyTimer = setTimeout(pushHistory, 380);
+}
+
+function restoreSnapshot(snap){
+  try {
+    const data = JSON.parse(snap);
+    if (!data || !MODELS[data.modelId]) return;
+    const modelChanged = state.modelId !== data.modelId;
+    state.modelId = data.modelId;
+    state.cfg = data.cfg;
+    const res = evaluate(state.modelId, state.cfg);
+    state.cfg = res.cfg;
+    state.limits = res.limits;
+    state.lastNotices = res.notices;
+
+    updateTabs();
+    renderProductHead();
+    renderControls();
+    syncPanel();
+    updateSummary();
+    hideRuleNotice();
+    clearSelection();
+
+    requestRebuild();
+    if (modelChanged){
+      frameModel();
+      frameDirty = false;
+      els.panelScroll.scrollTop = 0;
+    }
+    updateUrl();
+    updateHistoryButtons();
+  } catch (err){
+    console.warn('[Ruang Kayu] Gagal memulihkan riwayat:', err);
+  }
+}
+
+function undo(){
+  if (historyIndex <= 0) return;
+  historyIndex--;
+  restoreSnapshot(history[historyIndex]);
+  updateHistoryButtons();
+}
+
+function redo(){
+  if (historyIndex >= history.length - 1) return;
+  historyIndex++;
+  restoreSnapshot(history[historyIndex]);
+  updateHistoryButtons();
+}
+
+/* ---------- serialisasi & tautan ---------- */
+
+function currentPayload(){
+  return {
+    v:1,
+    m:state.modelId,
+    d:state.cfg.dims,
+    mat:state.cfg.mats,
+    f:state.cfg.finish,
+    c:state.cfg.comps
+  };
+}
+
+function encodePayload(){
+  const json = JSON.stringify(currentPayload());
+  const bytes = new TextEncoder().encode(json);
+  let bin = '';
+  bytes.forEach(b => { bin += String.fromCharCode(b); });
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decodePayload(str){
+  const padded = str.replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(padded + '='.repeat((4 - padded.length % 4) % 4));
+  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+function applyPayload(payload){
+  if (!payload || !MODELS[payload.m]) return false;
+  const cfg = defaultCfg(payload.m);
+  if (payload.d) for (const key of ['w', 'h', 'd']) if (Number.isFinite(Number(payload.d[key]))) cfg.dims[key] = Number(payload.d[key]);
+  if (payload.mat) for (const part of MODELS[payload.m].parts){
+    if (MATERIALS[payload.mat[part.id]] && part.options.includes(payload.mat[part.id])) cfg.mats[part.id] = payload.mat[part.id];
+  }
+  if (payload.f && FINISHES.some(f => f.id === payload.f)) cfg.finish = payload.f;
+  if (payload.c) for (const key of Object.keys(cfg.comps)) if (payload.c[key] !== undefined) cfg.comps[key] = payload.c[key];
+
+  const res = evaluate(payload.m, cfg);
+  state.modelId = payload.m;
+  state.cfg = res.cfg;
+  state.limits = res.limits;
+  state.lastNotices = res.notices;
+  return true;
+}
+
+function designBaseUrl(){
+  return location.href.split('#')[0];
+}
+
+function designLink(){
+  return designBaseUrl() + '#d=' + encodePayload();
+}
+
+let lastAppliedHash = '';
+
+function scheduleUrl(){
+  updateUrl();
+}
+
+function updateUrl(immediate = false){
+  clearTimeout(urlTimer);
+  const commit = () => {
+    const hash = '#d=' + encodePayload();
+    if (lastAppliedHash === hash) return;
+    lastAppliedHash = hash;
+    try {
+      window.history.replaceState(null, '', hash);
+    } catch (err){
+      /* file:// atau sandbox: biarkan tautan disalin manual */
+    }
+  };
+  if (immediate) commit();
+  else urlTimer = setTimeout(commit, 320);
+}
+
+async function copyText(text){
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (err){ /* fallback di bawah */ }
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (err){ ok = false; }
+  ta.remove();
+  return ok;
+}
+
+async function copyDesignLink(){
+  updateUrl(true);
+  const link = designLink();
+  const ok = await copyText(link);
+  toast(ok ? 'Tautan desain disalin. Buka di peramban lain untuk memulihkan konfigurasi.' : 'Gagal menyalin otomatis. Salin dari bilah alamat.');
+  if (!ok) {
+    const input = document.createElement('input');
+    input.value = link;
+    input.style.position = 'fixed';
+    input.style.top = '-100px';
+    document.body.appendChild(input);
+    input.select();
+    setTimeout(() => input.remove(), 5000);
+  }
+}
+
+/* ---------- pergantian model ---------- */
+
+function switchModel(modelId){
+  if (!MODELS[modelId] || modelId === state.modelId) return;
+  clearTimeout(historyTimer);
+  historyTimer = null;
+
+  state.modelId = modelId;
+  const res = evaluate(modelId, defaultCfg(modelId));
+  state.cfg = res.cfg;
+  state.limits = res.limits;
+  state.lastNotices = res.notices;
+
+  updateTabs();
+  renderProductHead();
+  renderControls();
+  syncPanel();
+  updateSummary();
+  hideRuleNotice();
+  clearSelection();
+  els.panelScroll.scrollTop = 0;
+
+  requestRebuild();
+  frameModel();
+  frameDirty = false;
+  resetHistory();
+  updateUrl(true);
+
+  if (res.notices.length) showRuleNotice(res.notices);
+  if (window.matchMedia('(max-width:767px)').matches){
+    els.panel.classList.remove('is-open');
+    els.sheetHandle.setAttribute('aria-expanded', 'false');
+  }
+}
+
+/* ============================================================
+   4. Permintaan penawaran, modal, event, inisialisasi
+   ============================================================ */
+
+const WA_NUMBER = '6281234567890';
+let modalLastFocus = null;
+let pendingSnapshot = null;
+let lastDesignLink = '';
+
+function openModal(modal){
+  if (!modal) return;
+  modalLastFocus = document.activeElement;
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  setTimeout(() => {
+    const target = modal.querySelector('#qName') || modal.querySelector('input, textarea, button, [href]');
+    if (target && target.offsetParent !== null) target.focus();
+  }, 80);
+}
+
+function closeModal(modal){
+  if (!modal) return;
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (!document.querySelector('.modal.is-open')) document.body.classList.remove('modal-open');
+  if (modalLastFocus && document.contains(modalLastFocus)){
+    try { modalLastFocus.focus(); } catch (err){ /* noop */ }
+  }
+}
+
+function specRows(){
+  const m = MODELS[state.modelId];
+  const cfg = state.cfg;
+  const finish = FINISHES.find(f => f.id === cfg.finish);
+  const rows = [
+    ['Produk', m.name],
+    ['Ukuran', `${cfg.dims.w} × ${cfg.dims.h} × ${cfg.dims.d} cm`],
+    ...m.parts.map(part => [part.label, MATERIALS[cfg.mats[part.id]].name]),
+    ['Finishing', finish ? finish.name : cfg.finish],
+    ['Komponen', compSummary(state.modelId, cfg)]
+  ];
+  return rows;
+}
+
+function specsText(){
+  return specRows().map(([label, value]) => `${label}: ${value}`).join('\n');
+}
+
+function openQuote(){
+  updateUrl(true);
+  lastDesignLink = designLink();
+  lastAppliedHash = '#d=' + encodePayload();
+
+  const specs = document.getElementById('quoteSpecs');
+  specs.innerHTML = specRows().map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join('');
+
+  const linkEl = document.getElementById('quoteShareLink');
+  if (linkEl) linkEl.href = lastDesignLink;
+
+  closeAllOpenings(true);
+  clearSelection();
+  pendingSnapshot = captureSnapshot();
+  const img = document.getElementById('quoteSnapshot');
+  const fallback = document.getElementById('quoteFallback');
+  if (pendingSnapshot){
+    img.src = pendingSnapshot;
+    img.hidden = false;
+    fallback.hidden = true;
+  } else {
+    img.hidden = true;
+    img.removeAttribute('src');
+    fallback.hidden = false;
+  }
+
+  document.getElementById('quoteFormView').hidden = false;
+  document.getElementById('quoteSuccess').hidden = true;
+  openModal(els.quoteModal);
+}
+
+function setFormError(name, message){
+  const field = document.querySelector(`[data-field="${name}"]`);
+  if (!field) return;
+  const error = field.querySelector('.form-error');
+  field.classList.toggle('has-error', !!message);
+  if (error){
+    error.textContent = message || '';
+    error.hidden = !message;
+  }
+}
+
+function clearFormErrors(){
+  document.querySelectorAll('#quoteForm .form-field').forEach(field => setFormError(field.dataset.field, ''));
+}
+
+function snapshotThumb(dataUrl){
+  return new Promise(resolve => {
+    if (!dataUrl){ resolve(null); return; }
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const scale = Math.min(1, 680 / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', .72));
+      } catch (err){ resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
+
+function saveRequest(request){
+  try {
+    const raw = localStorage.getItem('rk_requests');
+    const list = raw ? JSON.parse(raw) : [];
+    list.unshift(request);
+    localStorage.setItem('rk_requests', JSON.stringify(list.slice(0, 20)));
+    return true;
+  } catch (err){
+    console.warn('[Ruang Kayu] Permintaan tidak bisa disimpan ke localStorage:', err);
+    return false;
+  }
+}
+
+function formValue(form, name){
+  const el = form.elements.namedItem(name);
+  return el ? String(el.value || '').trim() : '';
+}
+
+async function handleQuoteSubmit(event){
+  event.preventDefault();
+  const form = event.currentTarget;
+  clearFormErrors();
+
+  if (formValue(form, 'website')) return; // honeypot
+
+  const name = formValue(form, 'name');
+  const phone = formValue(form, 'phone');
+  const city = formValue(form, 'city');
+  const email = formValue(form, 'email');
+  const notes = formValue(form, 'notes');
+
+  const phoneDigits = phone.replace(/\D/g, '');
+  const checks = [
+    { name:'name', valid:name.length >= 2, message:'Nama minimal 2 karakter.', el:form.elements.namedItem('name') },
+    { name:'phone', valid:phoneDigits.length >= 9 && phoneDigits.length <= 15, message:'Nomor WhatsApp minimal 9 angka.', el:form.elements.namedItem('phone') },
+    { name:'city', valid:city.length >= 2, message:'Isi kota pengiriman.', el:form.elements.namedItem('city') },
+    { name:'email', valid:!email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), message:'Format email belum benar.', el:form.elements.namedItem('email') }
+  ];
+
+  let firstInvalid = null;
+  for (const check of checks){
+    if (!check.valid){
+      setFormError(check.name, check.message);
+      if (!firstInvalid) firstInvalid = check.el;
+    }
+  }
+  if (firstInvalid){
+    firstInvalid.focus();
+    return;
+  }
+
+  const submitBtn = form.querySelector('button[type="submit"]');
+  if (submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Menyiapkan permintaan…'; }
+
+  try {
+    const code = 'RK-' + Date.now().toString(36).toUpperCase().slice(-6);
+    const link = lastDesignLink || designLink();
+    const snapshot = pendingSnapshot || captureSnapshot();
+    const thumb = await snapshotThumb(snapshot);
+    const m = MODELS[state.modelId];
+
+    const request = {
+      code,
+      name,
+      phone,
+      email,
+      city,
+      notes,
+      modelId:state.modelId,
+      modelName:m.name,
+      config:clone(state.cfg),
+      specs:specRows(),
+      preview:thumb,
+      link,
+      status:'baru',
+      createdAt:new Date().toISOString()
+    };
+    const stored = saveRequest(request);
+
+    const text = [
+      `Halo Ruang Kayu, saya ${name} dari ${city}.`,
+      '',
+      'Saya ingin minta penawaran:',
+      `Kode: ${code}`,
+      `Produk: ${m.name}`,
+      `Ukuran: ${state.cfg.dims.w} × ${state.cfg.dims.h} × ${state.cfg.dims.d} cm`,
+      specsText().split('\n').slice(2).join('\n'),
+      '',
+      `Tautan desain: ${link}`
+    ].join('\n');
+
+    const waLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
+    document.getElementById('waLink').href = waLink;
+    document.getElementById('successCode').textContent = code;
+    document.getElementById('successName').textContent = name.split(' ')[0];
+    document.getElementById('successLink').textContent = link;
+    document.getElementById('quoteFormView').hidden = true;
+    document.getElementById('quoteSuccess').hidden = false;
+
+    if (!stored) toast('Permintaan tampil, tetapi localStorage penuh. Tautan desain tetap bisa dibagikan.');
+
+    const copyBtn = document.getElementById('successCopy');
+    copyBtn.onclick = async () => {
+      const ok = await copyText(link);
+      toast(ok ? 'Tautan desain disalin.' : 'Gagal menyalin tautan.');
+    };
+  } catch (err){
+    console.error('[Ruang Kayu] Gagal mengirim permintaan:', err);
+    toast('Terjadi kendala saat menyiapkan permintaan. Coba lagi.');
+  } finally {
+    if (submitBtn){ submitBtn.disabled = false; submitBtn.textContent = 'Kirim permintaan'; }
+  }
+}
+
+function configSignature(cfg){
+  return JSON.stringify({ d:cfg.dims, mat:cfg.mats, f:cfg.finish, c:cfg.comps });
+}
+
+function openReset(){
+  const isDefault = configSignature(state.cfg) === configSignature(defaultCfg(state.modelId));
+  if (isDefault){
+    toast('Konfigurasi sudah berada di pengaturan awal.');
+    return;
+  }
+  openModal(els.resetModal);
+}
+
+function doReset(){
+  const res = evaluate(state.modelId, defaultCfg(state.modelId));
+  state.cfg = res.cfg;
+  state.limits = res.limits;
+  state.lastNotices = res.notices;
+
+  syncPanel();
+  updateSummary();
+  hideRuleNotice();
+  closeAllOpenings(true);
+  clearSelection();
+  requestRebuild();
+  pushHistory();
+  updateUrl(true);
+  closeModal(els.resetModal);
+  toast('Konfigurasi dikembalikan ke pengaturan awal.');
+}
+
+/* ---------- panel bawah (mobile) ---------- */
+
+function setSheet(open){
+  els.panel.classList.toggle('is-open', open);
+  els.sheetHandle.setAttribute('aria-expanded', String(open));
+}
+
+function bindSheet(){
+  if (!els.sheetHandle) return;
+
+  els.sheetHandle.addEventListener('click', event => {
+    if (event.detail === 0) setSheet(!els.panel.classList.contains('is-open'));
+  });
+
+  let startY = null;
+
+  els.sheetHandle.addEventListener('pointerdown', event => {
+    startY = event.clientY;
+    try { els.sheetHandle.setPointerCapture(event.pointerId); } catch (err){ /* noop */ }
+  });
+
+  els.sheetHandle.addEventListener('pointerup', event => {
+    if (startY === null) return;
+    const dy = event.clientY - startY;
+    startY = null;
+    if (dy < -26) setSheet(true);
+    else if (dy > 26) setSheet(false);
+    else setSheet(!els.panel.classList.contains('is-open'));
+  });
+
+  els.sheetHandle.addEventListener('pointercancel', () => { startY = null; });
+}
+
+/* ---------- event ---------- */
+
+function isTypingTarget(target){
+  if (!target) return false;
+  const tag = target.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
+}
+
+function bindEvents(){
+  els.modelTabs.addEventListener('click', event => {
+    const btn = event.target.closest('[data-model]');
+    if (btn) switchModel(btn.dataset.model);
+  });
+
+  els.modelTabs.addEventListener('keydown', event => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    const tabs = [...els.modelTabs.querySelectorAll('[data-model]')];
+    const index = tabs.findIndex(tab => tab.dataset.model === state.modelId);
+    const next = event.key === 'ArrowRight'
+      ? tabs[(index + 1) % tabs.length]
+      : tabs[(index - 1 + tabs.length) % tabs.length];
+    if (next){ switchModel(next.dataset.model); next.focus(); }
+  });
+
+  document.getElementById('btnUndo').addEventListener('click', undo);
+  document.getElementById('btnRedo').addEventListener('click', redo);
+  document.getElementById('btnReset').addEventListener('click', openReset);
+  document.getElementById('btnShare').addEventListener('click', copyDesignLink);
+  document.getElementById('btnShareTop').addEventListener('click', copyDesignLink);
+
+  const openBtn = document.getElementById('btnOpen');
+  if (openBtn) openBtn.addEventListener('click', toggleAllOpenings);
+
+  document.getElementById('btnMeasure').addEventListener('click', () => setMeasure(!measureOn));
+  document.getElementById('btnViewReset').addEventListener('click', () => {
+    if (!renderer){ toast('Pratinjau 3D tidak tersedia di perangkat ini.'); return; }
+    frameModel();
+    needsRender = true;
+  });
+
+  const closeSelection = document.getElementById('selectionClose');
+  if (closeSelection) closeSelection.addEventListener('click', () => clearSelection());
+
+  document.getElementById('btnQuote').addEventListener('click', openQuote);
+  document.getElementById('fallbackQuoteBtn').addEventListener('click', openQuote);
+  document.getElementById('btnResetConfirm').addEventListener('click', doReset);
+  document.getElementById('quoteForm').addEventListener('submit', handleQuoteSubmit);
+
+  document.getElementById('quoteForm').addEventListener('input', event => {
+    const field = event.target.closest('.form-field');
+    if (field) setFormError(field.dataset.field, '');
+  });
+
+  document.addEventListener('click', event => {
+    const closer = event.target.closest('[data-close]');
+    if (closer){
+      closeModal(document.getElementById(closer.dataset.close));
+    }
+  });
+
+  document.addEventListener('keydown', event => {
+    const openModalEl = document.querySelector('.modal.is-open');
+
+    if (event.key === 'Escape'){
+      if (openModalEl){
+        event.preventDefault();
+        closeModal(openModalEl);
+        return;
+      }
+      if (selectedPart){
+        clearSelection();
+        return;
+      }
+      if ([...interactives.values()].some(it => it.open)){
+        closeAllOpenings();
+        return;
+      }
+    }
+
+    if (event.key === 'Tab' && openModalEl){
+      const focusables = [...openModalEl.querySelectorAll('button, [href], input, textarea, select')]
+        .filter(el => !el.disabled && el.offsetParent !== null && el.type !== 'hidden');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first){
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last){
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    if ((event.ctrlKey || event.metaKey) && !isTypingTarget(event.target)){
+      const key = event.key.toLowerCase();
+      if (key === 'z'){
+        event.preventDefault();
+        if (event.shiftKey) redo();
+        else undo();
+      } else if (key === 'y'){
+        event.preventDefault();
+        redo();
+      }
+    }
+  });
+
+  els.controls.addEventListener('input', event => {
+    const el = event.target;
+    if (el.matches('.range[data-dim]')){
+      updateDim(el.dataset.dim, Number(el.value), true);
+    }
+  });
+
+  els.controls.addEventListener('change', event => {
+    const el = event.target;
+    if (el.matches('input[type="number"][data-dim]')){
+      updateDim(el.dataset.dim, Number(el.value), false);
+    }
+  });
+
+  els.controls.addEventListener('click', event => {
+    const chip = event.target.closest('[data-mat]');
+    if (chip){
+      setMaterial(chip.dataset.part, chip.dataset.mat);
+      return;
+    }
+
+    const finish = event.target.closest('[data-finish]');
+    if (finish){
+      setFinish(finish.dataset.finish);
+      return;
+    }
+
+    const step = event.target.closest('[data-step]');
+    if (step){
+      const row = step.closest('[data-comp]');
+      if (row) changeComp(row.dataset.comp, Number(step.dataset.step));
+      return;
+    }
+
+    const choice = event.target.closest('[data-choice-value]');
+    if (choice){
+      const group = choice.closest('[data-choice]');
+      if (group) setChoice(group.dataset.choice, choice.dataset.choiceValue);
+      return;
+    }
+
+    const toggle = event.target.closest('[data-toggle]');
+    if (toggle) toggleComp(toggle.dataset.toggle);
+  });
+
+  window.addEventListener('hashchange', () => {
+    if (location.hash === lastAppliedHash) return;
+    const hash = location.hash;
+    if (!hash.startsWith('#d=')) return;
+    try {
+      if (applyPayload(decodePayload(hash.slice(3)))){
+        updateTabs();
+        renderProductHead();
+        renderControls();
+        syncPanel();
+        updateSummary();
+        hideRuleNotice();
+        clearSelection();
+        frameDirty = true;
+        requestRebuild();
+        resetHistory();
+        lastAppliedHash = hash;
+      }
+    } catch (err){ /* hash tidak valid, abaikan */ }
+  });
+}
+
+/* ---------- init ---------- */
+
+function initFromHash(){
+  if (!location.hash.startsWith('#d=')) return false;
+  try {
+    const payload = decodePayload(location.hash.slice(3));
+    return applyPayload(payload);
+  } catch (err){
+    console.warn('[Ruang Kayu] Tautan desain tidak valid:', err);
+    return false;
+  }
+}
+
+function init(){
+  document.getElementById('bootError').hidden = true;
+
+  if (!initFromHash()){
+    state.modelId = 'arun';
+    const res = evaluate('arun', defaultCfg('arun'));
+    state.cfg = res.cfg;
+    state.limits = res.limits;
+    state.lastNotices = res.notices;
+  }
+
+  updateTabs();
+  renderProductHead();
+  renderControls();
+  syncPanel();
+  updateSummary();
+  resetHistory();
+  bindEvents();
+  bindSheet();
+
+  const sceneReady = initScene();
+  if (sceneReady){
+    requestRebuild();
+    frameModel();
+    frameDirty = false;
+    setTimeout(() => {
+      if (!firstRenderDone) els.viewport.classList.add('is-ready');
+    }, 6000);
+  } else {
+    els.viewport.classList.add('is-ready');
+  }
+
+  if (state.lastNotices && state.lastNotices.length) showRuleNotice(state.lastNotices);
+  updateUrl(true);
+  lastAppliedHash = location.hash;
+
+  setTimeout(() => {
+    window.__rkReady = true;
+    document.getElementById('bootError').hidden = true;
+  }, 100);
+}
+
+init();
+</script>
+</body>
+</html>
